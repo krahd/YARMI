@@ -1,0 +1,26 @@
+name: iOS proof build
+
+on:
+  push:
+    paths:
+      - "apps/ios-proof/**"
+      - ".github/workflows/ios-proof.yml"
+  pull_request:
+    paths:
+      - "apps/ios-proof/**"
+      - ".github/workflows/ios-proof.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile YARMI2Proof for iOS Simulator
+        run: |
+          xcodebuild \
+            -project apps/ios-proof/YARMI2Proof.xcodeproj \
+            -scheme YARMI2Proof \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build
