@@ -53,6 +53,8 @@ xcodebuild \
   build
 ```
 
+The repository workflow `.github/workflows/ios-proof.yml` runs this compile-only build on changes to the proof.
+
 ## Exit criterion
 
 This prototype has done its job once it runs on a real iPhone/iPad and demonstrates the complete seven-step behaviour above. After that, further work should move back to the portable semantic/runtime architecture rather than growing this Swift proof opportunistically.
