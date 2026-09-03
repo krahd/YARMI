@@ -1,12 +1,18 @@
 # YARMI
 
-YARMI is a from-scratch reimplementation and conceptual continuation of the earlier YARMI augmented-reality musical instrument. The current working names are **YARMI 2.0** and **YARMI 2026**; neither is yet fixed as the final public title.
+YARMI is a from-scratch reimplementation and conceptual continuation of the earlier YARMI augmented-reality musical instrument. Current working names are **YARMI 2.0** and **YARMI 2026**; neither is fixed as the final public title.
 
-The project is a distributed musical-system architecture for ad-hoc ensembles of autonomous stations. Its central design requirement is that musical semantics, coordination topology, interaction modality, physical manifestation, rendering, transport, synchronisation and audio implementation remain independently replaceable.
+The contemporary project explores ad-hoc ensembles of autonomous musical stations while refusing to define the instrument by one physical interface, one DSP engine, one rendering system, one device class, or one coordination topology.
 
-## Current scope
+The project is **playability-driven**: architecture and semantics are expected to change through repeated musical use.
 
-YARMI must be able to run natively on:
+```text
+implement -> play -> observe -> revise -> play again
+```
+
+## Required platform horizon
+
+YARMI must ultimately run natively on:
 
 - iPhone and iPad;
 - Android phones and tablets;
@@ -14,30 +20,76 @@ YARMI must be able to run natively on:
 - Windows;
 - Linux.
 
-A station may eventually be manifested through touch, markers, arbitrary physical objects, hands, cameras, projection, AR, VR/XR, haptics, MIDI/OSC controllers, conventional screens, or interfaces not yet selected. None of these belongs in the semantic core.
+## Current first-iteration decisions
 
-## Architectural invariants
+The first portable/playable implementation deliberately chooses:
 
-1. **Stations are autonomous.** A station is not intrinsically a client, leader, follower, screen, table, device type or physical object.
-2. **Authority is a policy, not a station type.** Different coordination domains may have no leader, one fixed leader, dynamic leaders, several leaders, hierarchical leaders/subleaders, local-group leaders, or other policies. The architecture must not assume one topology.
-3. **Physicality is an adapter concern.** The core must not require markers, cameras, hands, coordinates, AR, VR, touch or any particular physical representation.
-4. **The protocol is semantic and transport-agnostic.** YARMI defines typed domain messages/events independently of OSC, WebSocket, UDP, QUIC or another transport. OSC is a first-class adapter candidate, not the protocol definition.
-5. **Timing is separable from authority.** Shared beat/tempo/phase synchronisation may use Ableton Link or another timing service without thereby granting musical or structural authority.
-6. **Audio is replaceable.** The initial host may use JUCE and an audio-backend interface supporting libpd and/or native JUCE/C++ DSP. Pd patches must not own ensemble networking, authority or interaction semantics.
-7. **DAWs and plug-ins are integration surfaces, not the architecture.** A DAW, plug-in host, VST3/AU/CLAP plug-in, MIDI endpoint or external instrument may participate as a component or station through adapters.
-8. **Nothing from historical YARMI is inherited automatically.** Old code, semantics, mappings, UI concepts, networking and Pd patches are historical evidence only and must earn re-adoption independently.
+- **JUCE** as the cross-platform application/audio/MIDI host;
+- **libpd** as the first embedded DSP backend behind a replaceable interface;
+- **Ableton Link** for all v0 ensemble tempo/beat/phase synchronisation;
+- **JUCE VST3 hosting** as the first desktop third-party-plugin integration path;
+- no dependency on Ableton Live;
+- no dependency on standalone Pd;
+- no custom synchronisation system in v0;
+- no YARMI leader/authority-management subsystem until musical use demonstrates a need;
+- no general control/state network protocol until a musical interaction requires station-to-station semantic exchange.
 
-## Immediate research directions
+These are implementation decisions for getting to a playable system quickly. The architecture remains revisable.
 
-Two possible manifestations are under consideration but do not define YARMI:
+## Physicality is not YARMI
 
-- **Spatial YARMI:** musical entities/nodes instantiated and manipulated in 3D space.
-- **Object YARMI:** arbitrary existing physical objects can be instantiated as musical entities/stations and computationally or visually augmented.
+A station may eventually be manifested through touch, markers, arbitrary physical objects, hands/body tracking, cameras, projection, AR, VR/XR, haptics, MIDI/OSC controllers, conventional screens, or interfaces not yet selected.
 
-The older YARMI idea of distributed, ad-hoc station configurations remains important, but the new architecture generalises it so that station membership, authority and synchronisation can vary independently.
+None of these belongs in the semantic core.
 
-## Repository state
+Spatial information is optional. A tactile, MIDI or other non-spatial manifestation must not need fictitious coordinates merely because another manifestation uses 3D space.
 
-This repository intentionally begins with architecture and protocol design before implementation. The original YARMI codebase, if recovered, will be archived and examined as historical material rather than used as the implementation base.
+## Stations and timing
 
-See `docs/ARCHITECTURE.md`, `docs/PROTOCOL.md`, and `docs/DECISIONS.md`.
+A station is an autonomous participant; it is not intrinsically a client, leader, follower, screen, table, device type or physical object.
+
+For v0, stations are peers sharing musical timing through Ableton Link. Multiple stations may initially share **only** Link timing and otherwise remain independent. That is a valid first ensemble.
+
+The older YARMI concept of distributed, ad-hoc station configurations remains central, but the contemporary implementation will not inherit the old client/server or leader-station semantics automatically.
+
+## Authority: design horizon, not v0 work
+
+If playability later requires structured authority, the architecture should be able to evolve toward no leader, one fixed leader, dynamic leaders, several leaders, hierarchical leaders/subleaders, domain-specific leaders, subensemble authority, or other configurations.
+
+Do **not** implement these merely because they are conceivable. They are preserved as a large-schema design envelope so early choices do not unnecessarily close them off.
+
+## Audio and plugins
+
+JUCE owns the portable application/audio-device lifecycle. libpd is the initial musical DSP backend.
+
+Pd patches render/process sound; they do not own ensemble semantics, networking, physical interaction or application state.
+
+Desktop YARMI will use JUCE's plugin-hosting facilities for a first VST3 integration path. DAWs and plugins remain optional integration surfaces rather than dependencies.
+
+## Current manifestation ideas
+
+Possible manifestations include:
+
+- **Spatial YARMI:** musical entities/nodes instantiated and manipulated in 3D space;
+- **Object YARMI:** arbitrary existing physical objects become musical entities/stations and are computationally/visually augmented;
+- combined object-plus-spatial configurations;
+- touch, projection, hands/body, AR glasses, VR/XR, haptic and other configurations.
+
+These are manifestations, not definitions of YARMI.
+
+## Historical YARMI
+
+Historical papers and any recovered code are evidence only. No code, interaction grammar, track/zone semantics, token mapping, Pd organisation, networking, leadership model or student implementation decision is inherited automatically.
+
+The new implementation starts from scratch.
+
+## Repository map
+
+- `docs/DECISIONS.md` — current decisions, explicit non-decisions and large-schema horizon;
+- `docs/ARCHITECTURE.md` — current v0 decomposition versus deferred architectural possibilities;
+- `docs/SEMANTICS.md` — deliberately small provisional semantic vocabulary;
+- `docs/PROTOCOL.md` — why a general YARMI control protocol is deferred until playability requires it;
+- `docs/DEVELOPMENT.md` — immediate implementation sequence, playability loop, measurement gates and coding-agent handoff;
+- `apps/ios-proof/` — disposable SwiftUI/RealityKit/ARKit existence proof, not the portable architecture.
+
+For implementation work, read **`docs/DEVELOPMENT.md` and `docs/DECISIONS.md` first**.
