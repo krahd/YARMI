@@ -3,69 +3,116 @@
 - **Canonical project repository:** `krahd/YARMI`
 - **Canonical project identity:** `krahd/tom-work-admin/registry/projects.yaml`
 - **Human cross-domain record:** `krahd/tom-work-admin/projects/yarmi.md`
-- **Current status:** active; minimal semantics defined; first iOS/iPadOS AR existence proof compile-verified; real-device AR validation pending
+- **Current status:** active; iOS/iPadOS AR existence proof compile-verified; portable/playable v0 architecture now fixed narrowly enough to implement; real-device AR validation and portable JUCE implementation pending
 - **Working names:** YARMI 2.0 / YARMI 2026; final public title not fixed
 - **Type:** artwork / software / computer-music / interaction-research project
 
 ## Relationship to historical YARMI
 
-The project is a conceptual continuation and new implementation of the earlier YARMI augmented-reality musical instrument. The historical implementation is not authoritative for current semantics or architecture. If recovered, it is evidence to inspect, not a codebase to modernise by default.
+The project is a conceptual continuation and new implementation of the earlier YARMI augmented-reality musical instrument. The historical implementation is not authoritative for current semantics or architecture.
 
-Historical sources include the 2009 YARMI paper and the 2011 iteration. They document a collaborative networked tangible musical instrument with synchronised stations, but current YARMI reopens every design decision.
+If recovered, old code is archaeological/historical evidence only. Do not inherit code, semantics, mappings, Pd organisation, networking, station roles, zones, visual language, or student implementation decisions automatically.
 
-## Current architectural commitments
+## Governing development method
 
-- cross-platform native targets: iOS/iPadOS, Android, macOS, Windows, Linux;
-- framework-independent semantic core;
-- station semantics independent of physical manifestation;
-- authority/leadership represented as configurable policy over coordination domains rather than a station property;
-- transport-independent typed YARMI protocol, with OSC as an adapter candidate;
-- timing/synchronisation separated from authority, with Ableton Link as a candidate timing substrate;
-- audio backend replaceable; libpd and native JUCE/C++ DSP remain open candidates;
-- JUCE is the current leading candidate for the default cross-platform application/audio host; openFrameworks remains a candidate for graphics/interaction manifestations rather than the semantic core;
-- DAWs, VST3/AU/AUv3/CLAP plug-ins, external plugin hosts, MIDI and other musical systems are potential adapters/components rather than architectural dependencies;
-- YARMI may control a VST instrument without caring which compliant host actually owns/instantiates that plug-in; DAW/plugin host identity is outside the semantic core;
-- no historical YARMI semantic or implementation decision is inherited automatically.
-
-## Minimal semantics v0.0.1
-
-`docs/SEMANTICS.md` defines the first compact formal model:
+YARMI is developed through musical use:
 
 ```text
-E = (S, X, P, τ)
+implement -> play -> observe -> revise -> play again
 ```
 
-with stations `S`, entity state `X`, authority policies `P`, and optional musical time `τ`. Semantic change is expressed as actions reduced by a transport-independent state transition. Physical interaction, rendering, sound, network transport and DAW integration are adapters around this state model.
+Architecture is also allowed to change. Do not implement speculative generality merely because a future distributed musical system could need it.
 
-## First existence proof
+Tomas Laurenzo is the principal initial performer/designer; sustained first-person musical use is valid evidence for early design/architecture decisions.
+
+## Fixed choices for the first portable/playable iteration
+
+- native platform horizon: iPhone/iPad, Android, macOS, Windows, Linux;
+- semantic/core logic remains independent of physical manifestation;
+- **JUCE** is the first portable application/audio/MIDI host;
+- **libpd** is the first embedded DSP backend behind a replaceable `AudioBackend` boundary;
+- **Ableton Link** provides all shared ensemble tempo/beat/phase timing in v0;
+- **JUCE VST3 hosting** is the first desktop third-party-plugin integration route;
+- Ableton Live is not a dependency;
+- standalone Pd is not a dependency;
+- no custom timing/synchronisation layer in v0;
+- no authority/leader-management subsystem in v0;
+- no general YARMI control/state network protocol until a musical behaviour requires semantic station-to-station exchange;
+- openFrameworks, native AR frameworks and other render/input systems remain manifestation-specific options rather than core dependencies.
+
+## Authority / large-schema distinction
+
+The architecture should not make future authority structures impossible, but they are deliberately **not** v0 work.
+
+Possible future configurations include no leader, fixed leader, dynamic leader assignment, several leaders, domain-specific leaders, hierarchical leaders/subleaders and subensemble/local authority.
+
+Implement authority only if playability produces a concrete recurring need. The large-schema capability space is documented in `docs/DECISIONS.md`, `docs/ARCHITECTURE.md`, and `docs/DEVELOPMENT.md` so it is preserved without becoming premature implementation work.
+
+## Physicality rule
+
+YARMI's core must remain agnostic to markers, arbitrary objects, hands/body, touch, cameras, projectors, phones/tablets, AR glasses, VR/XR, haptics, MIDI/OSC controllers and other physical/interface modalities.
+
+Spatial metadata is optional. Physical manifestations are adapters around the musical/station semantics, not the definition of the instrument.
+
+## Existing iOS/iPadOS existence proof
 
 `apps/ios-proof/` is a deliberately small Apple-native AR manifestation. It is disposable prototype code rather than the future portable runtime.
 
-The proof recreates only the smallest recognisable documented historical YARMI interaction:
+It currently demonstrates the narrow historical echo:
 
 1. tap to place the beginning of a track in physical space;
 2. tap again to place its end;
-3. see the track and explicit moving time cursor;
+3. see the track and moving time cursor;
 4. tap to place note/sample entities projected onto the track;
 5. hear notes triggered as the cursor crosses them.
 
-It uses SwiftUI + RealityKit/ARKit and a temporary `AVAudioEngine` sine-tone backend. It deliberately excludes networking, OSC, Link, libpd, JUCE, VST/DAW integration and old YARMI semantics.
+It uses SwiftUI + RealityKit/ARKit and a temporary `AVAudioEngine` sine-tone backend.
 
-**Verification:** GitHub Actions `iOS proof build`, run 33808267591, compiled `YARMI2Proof` successfully for the iOS Simulator on macOS. Physical-device AR behaviour remains unverified until run on an iPhone/iPad.
+**Verification:** GitHub Actions `iOS proof build`, run 33808267591, compiled `YARMI2Proof` successfully for the iOS Simulator. Physical-device AR behaviour remains unverified.
+
+The proof does **not** establish tracks, samples, this interaction grammar, or Apple-native architecture as YARMI 2 semantics.
+
+## Immediate implementation sequence
+
+The authoritative detailed handoff is `docs/DEVELOPMENT.md`.
+
+In brief:
+
+1. run the existing iOS proof on a physical iPhone/iPad and fix only proof-blocking defects;
+2. establish the portable JUCE/CMake station shell;
+3. define the minimum `AudioBackend` boundary and implement libpd first;
+4. instrument sample rate, buffer size, latency/xrun/callback behaviour from the beginning;
+5. integrate Ableton Link as the complete v0 timing service;
+6. make one station genuinely playable with the simplest useful manifestation;
+7. run at least two independent stations/devices sharing Link timing and test ad-hoc join/leave;
+8. conduct repeated real playing sessions and record concise playability observations;
+9. revise semantics/architecture only in response to those observations or concrete portability/reliability requirements;
+10. add JUCE VST3 hosting on desktop once the local audio/timing loop is stable enough to play;
+11. introduce YARMI semantic networking only when an actual musical interaction needs more than shared Link timing;
+12. establish cross-platform compile/smoke-test coverage early enough to catch platform assumptions.
+
+## Current manifestation directions
+
+Candidate manifestations, none canonical:
+
+- Spatial YARMI: virtual musical nodes/entities placed/manipulated in 3D space;
+- Object YARMI: arbitrary physical objects instantiated as musical entities/stations and computationally/visually augmented;
+- combined object-plus-spatial structures;
+- touch, projection, hands/body, AR glasses, VR/XR, tactile/haptic and other interfaces.
 
 ## Current opportunity relationship
 
-CTM 2027 — *Resynthesising the Traditional: At the Extreme* is an active opportunity in which this materially new 2026 YARMI work may become relevant. The project remains independent of that call.
+CTM 2027 — *Resynthesising the Traditional: At the Extreme* is an active opportunity in which materially new 2026 YARMI work may become relevant. The project remains independent of that call.
 
-## Next actions
+## Canonical development documents
 
-1. **Run the compile-verified existence proof on a physical iPhone/iPad.** Confirm plane detection, track placement, cursor motion, note creation and sound triggering.
-2. Fix only defects that prevent the existence proof from satisfying that narrow behaviour; do not grow the Swift prototype into the architecture.
-3. Return to the portable runtime: implement the minimal semantic reducer independently of UI/AR framework.
-4. Prototype local multi-station behaviour before networking.
-5. Add an OSC interoperability adapter and optional Ableton Link timing adapter only after local semantics are stable.
-6. Evaluate JUCE+libpd and native JUCE/C++ DSP with identical backend interfaces.
-7. Define DAW/plugin control adapters, including the ability for YARMI to drive an externally hosted VST instrument without requiring YARMI to know which host owns it.
-8. Recover the historical codebase if available and archive observations without importing code or semantics by default.
+- `README.md`
+- `docs/DECISIONS.md`
+- `docs/ARCHITECTURE.md`
+- `docs/SEMANTICS.md`
+- `docs/PROTOCOL.md`
+- `docs/DEVELOPMENT.md`
+
+For Codex/Claude implementation work, read `docs/DEVELOPMENT.md` and `docs/DECISIONS.md` before changing architecture.
 
 `krahd/tom-work-admin` is the canonical cross-domain administration/ledger repository; there is no separate canonical `tom-main-work` repository.
