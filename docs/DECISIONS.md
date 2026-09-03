@@ -1,74 +1,163 @@
 # YARMI design decisions
 
-This file records current decisions and explicitly open choices. Historical YARMI decisions are not presumed valid.
+This file records current decisions and explicitly open choices. Historical YARMI decisions are not presumed valid. Architecture is itself provisional: decisions may be revised when sustained musical use demonstrates that another structure is better.
 
-## Fixed architectural decisions
+## Governing development rule
+
+### D0 — Playability precedes architectural generality
+
+YARMI is developed by repeated cycles of:
+
+```text
+implement -> play -> observe requirement/friction/possibility -> revise -> play again
+```
+
+Do not implement complexity merely because a distributed musical system might theoretically need it. A feature, abstraction, protocol or authority mechanism should earn its place through musical use, implementation necessity, portability, reliability, or a concrete manifestation requirement.
+
+Tomas Laurenzo is the principal initial performer/designer and sustained first-person musical use is valid design evidence for early iterations. Formal user studies are not a prerequisite for changing the instrument.
+
+## Fixed decisions for the first portable/playable iteration
 
 ### D1 — From-scratch implementation
 
-YARMI 2.0 / YARMI 2026 is implemented from scratch. Historical code may be recovered and studied, but no code, semantics, mapping or architecture is inherited automatically.
+YARMI 2.0 / YARMI 2026 is implemented from scratch. Historical code may be recovered and studied, but no code, semantics, mapping, interaction grammar, DSP organisation, networking model or architecture is inherited automatically.
 
 ### D2 — Physicality-agnostic core
 
 The core does not assume markers, tables, cameras, touchscreens, objects, hands, projections, AR, VR/XR, haptics, coordinates or any other manifestation.
 
-### D3 — Authority is orthogonal to stations
+Physical/spatial information is optional manifestation data. A valid YARMI station or action must not require a spatial coordinate merely because some manifestations use space.
 
-Leadership/authority is a policy over named coordination domains, not a station property. The model must represent leaderless, fixed-leader, dynamically assigned, multi-leader, hierarchical/subleader and mixed/domain-specific configurations without changing the station abstraction.
+### D3 — Native cross-platform target
 
-### D4 — Semantic protocol independent of wire protocol
+The portable implementation must support native applications on:
 
-YARMI defines its own versioned typed semantic protocol. OSC is an interoperability adapter, not the canonical schema. Transport choice remains replaceable.
+- iPhone/iPad;
+- Android;
+- macOS;
+- Windows;
+- Linux.
 
-### D5 — Timing independent of authority and control protocol
+### D4 — JUCE is the v0 portable application host
 
-Shared musical timing is a service. Ableton Link is a strong candidate for beat/tempo/phase synchronisation, but using Link must not define authority or ensemble control semantics.
+JUCE is the first portable host for application lifecycle, audio device access, MIDI and desktop/mobile deployment. This is a v0 implementation decision, not a claim that JUCE belongs in YARMI semantics.
 
-### D6 — DAWs and plug-ins are optional participants
+openFrameworks remains available as a manifestation-specific graphics/CV/creative-coding layer if useful. Native AR/VR/platform frameworks may also be used behind manifestation adapters.
 
-Commercial DAWs such as Ableton Live may participate through timing, MIDI/audio/control, plugin-host or dedicated adapters. They are never required for YARMI operation and do not define the core.
+### D5 — libpd is the first v0 DSP backend
 
-### D7 — Audio backends replaceable
+The first portable playable implementation uses embedded libpd behind an `AudioBackend` boundary. Pd is chosen for rapid and proven real-time musical DSP, not as the owner of YARMI semantics.
 
-The audio interface must permit embedded libpd, native JUCE/C++ DSP, external DAW/plugin processing, and future engines. Audio backends do not own ensemble state or networking.
+Pd must not own ensemble membership, networking, interaction semantics, physicality, authority or application lifecycle. Native JUCE/C++ DSP remains a later interchangeable backend if playability, latency, maintainability or deployment justifies it.
 
-### D8 — Native cross-platform target
+### D6 — Ableton Link is the complete v0 ensemble timing substrate
 
-The architecture must support native applications on iPhone/iPad, Android, macOS, Windows and Linux.
+The first iteration uses Ableton Link for shared tempo/beat/phase timing. Do not implement a custom clock, leader clock, election scheme or YARMI authority layer before musical use demonstrates a need.
 
-## Current leading implementation hypotheses — not fixed
+Link is a timing substrate only. It is not the YARMI semantic/control protocol and does not make Ableton Live a dependency.
 
-- JUCE as the default cross-platform application/audio/MIDI host.
-- libpd as an initial rapid-composition audio backend behind a stable interface.
-- native JUCE/C++ DSP as a parallel or later backend.
-- openFrameworks as an optional graphics/CV/creative-coding manifestation layer.
-- OSC as the first external control interoperability adapter.
-- Ableton Link as an optional shared musical-time adapter.
-- VST3 as the first desktop plugin/DAW format because of broad host support and its current MIT-licensed SDK.
-- AU/AUv3 adapters for Apple platforms where useful.
-- CLAP evaluated as an additional modern desktop plugin interface; it is not required for the first prototype.
+### D7 — No authority subsystem in v0
+
+The first iteration is peer-oriented and uses Link's shared timing behaviour. Do not implement leader election, authority grants, leases, consensus, subleaders, hierarchical control or conflict policies in v0.
+
+The architecture should avoid assumptions that would make future authority arrangements impossible. If playability later demands authority, the larger design envelope includes:
+
+- no leader;
+- one fixed leader;
+- dynamic leader assignment;
+- several leaders;
+- domain-specific leaders;
+- hierarchical leaders/subleaders;
+- subensemble/local authority;
+- other policies discovered through use.
+
+This is a deferred capability space, not a v0 implementation backlog.
+
+### D8 — Ableton Live and standalone Pd are not dependencies
+
+Both may participate in a musical setup, but a YARMI ensemble must run without either application.
+
+### D9 — JUCE plugin hosting is a first-class desktop integration path
+
+Desktop YARMI should be able to host third-party VST3 instruments/effects through JUCE. Plugin hosting is an integration surface, not a core semantic assumption.
+
+YARMI may later also expose itself as a plugin where useful, but that is not required for the first playable iteration.
+
+### D10 — DAWs and plug-ins remain optional participants
+
+A DAW may join timing through Link, receive/send MIDI/audio/control, or host/route plugins. YARMI semantics must not depend on Ableton Live, Logic, Bitwig, Reaper or any other DAW.
+
+### D11 — Architecture is intentionally revisable
+
+Separation at volatile boundaries is required; speculative abstraction is not. We keep enough decomposition to replace DSP, synchronisation, manifestation and integration layers, but we do not build a general-purpose distributed-music framework in advance of an instrument.
+
+## Current v0 decomposition
+
+```text
+manifestation/input adapters
+        |
+        v
+minimal YARMI station/musical semantics
+        |
+        +-------------------+
+        |                   |
+        v                   v
+Ableton Link           AudioBackend
+(shared time)              |
+                           v
+                         libpd
+
+portable process/application host: JUCE
+optional desktop integration: JUCE VST3 hosting
+```
+
+Control/state networking beyond Link is introduced only when a musical behaviour actually needs station-to-station semantic exchange.
 
 ## Explicitly open
 
 - canonical musical entity model;
-- whether tracks/sequencers exist at all in the new semantic core;
-- synthesis and processing model;
-- audio backend chosen for the first playable manifestation;
+- whether tracks/sequencers exist at all in the contemporary instrument;
+- synthesis/processing model beyond the first libpd backend;
 - rendering framework per manifestation;
-- first network transport after local/in-process testing;
-- precise conflict semantics for simultaneous authorities;
-- initial discovery mechanism;
-- whether YARMI hosts third-party plugins in the first release;
-- whether YARMI itself ships as plugin formats in the first release;
-- first physical manifestation: spatial AR, arbitrary-object augmentation, touch, conventional desktop/mobile, or another form;
+- first persistent physical manifestation after the existing iOS AR proof;
+- control/state network protocol and transport, if/when needed;
+- OSC's eventual role;
+- station discovery beyond what the first playable ensemble requires;
+- persistence/replication/conflict semantics;
+- whether authority is needed at all;
+- if authority is needed, its domains and policies;
+- whether native JUCE/C++ DSP replaces or complements libpd;
+- AU/AUv3/LV2/CLAP integration priorities;
+- whether YARMI itself ships as a plugin;
 - final public title/version naming.
+
+## Large-schema design envelope — preserve, do not implement by default
+
+The longer-term architecture may eventually need to represent independently:
+
+- station/device capabilities;
+- ensemble/subensemble membership;
+- timing backends other than Link;
+- multiple authority domains and topologies;
+- shared semantic state and replication;
+- discovery and capability negotiation;
+- ordering/idempotence/replay guarantees;
+- persistence and session recovery;
+- several simultaneous transports;
+- local, spatial and remote manifestations;
+- object-, hand-, marker-, touch-, projection-, AR-, VR-, haptic- and controller-based interaction;
+- several DSP engines;
+- DAWs, plugin hosts and hardware instruments;
+- heterogeneous stations that render the same ensemble differently.
+
+This list records design possibility. It is not a commitment to implement the corresponding abstractions before they are justified.
 
 ## Historical-material rule
 
-When the old codebase is recovered, review decisions under three labels only:
+When the old codebase is recovered, review observations under three labels only:
 
 - `historical-observation` — what the system actually did;
-- `candidate` — a behaviour worth reconsidering;
-- `rejected` — a behaviour we deliberately do not carry forward.
+- `candidate` — something worth independently reconsidering;
+- `rejected` — something deliberately not carried forward.
 
-No historical behaviour becomes `current` merely because it existed.
+No historical behaviour becomes `current` merely because it existed or because it was documented in a paper/codebase.
