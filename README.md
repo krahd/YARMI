@@ -93,3 +93,56 @@ The new implementation starts from scratch.
 - `apps/ios-proof/` — disposable SwiftUI/RealityKit/ARKit existence proof, not the portable architecture.
 
 For implementation work, read **`docs/DEVELOPMENT.md` and `docs/DECISIONS.md` first**.
+
+## Playable prototype
+
+The first portable station is now implemented in `Source/`. The same JUCE application runs on
+macOS and iPadOS and provides:
+
+- a touch/mouse-editable four-lane, 16-step instrument;
+- an embedded libpd synth (no standalone Pd installation);
+- Ableton Link beat/phase/tempo on macOS and official LinkKit integration on iPadOS;
+- tempo, transposition and timbre controls, plus clear/evolve performance actions;
+- live sample-rate, buffer, output-latency, callback-load and estimated-xrun diagnostics.
+
+The cells are the instrument: tap or click to toggle notes, then drag across the grid to reshape a
+phrase while it plays. `EVOLVE` mutates the current phrase without replacing it. Each process is an
+autonomous station; Link shares time only.
+
+### Build on macOS
+
+Prerequisites are Xcode and CMake 3.28 or newer. The first configure downloads pinned JUCE, libpd,
+and Ableton Link sources.
+
+```sh
+./scripts/configure-macos.sh -DBUILD_TESTING=ON
+cmake --build build-macos --config Debug --target YarmiStation YarmiCoreTests YarmiAudioTests
+ctest --test-dir build-macos -C Debug --output-on-failure
+open "build-macos/YarmiStation_artefacts/Debug/YARMI.app"
+```
+
+### Build on iPadOS
+
+```sh
+./scripts/configure-ios.sh
+open build-ios/YARMI.xcodeproj
+```
+
+Select the `YarmiStation` scheme and a physical iPad, set your development team, then run. The
+project downloads the pinned official LinkKit 4.1 XCFramework. Link peer discovery on hardware
+requires the `com.apple.developer.networking.multicast` entitlement to be granted to the signing
+team. Simulator compilation can be checked without signing:
+
+```sh
+./scripts/configure-ios.sh --simulator
+cmake --build build-ios-simulator --config Debug --target YarmiStation -- \
+  -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
+```
+
+Device and simulator builds use separate directories because CMake selects the appropriate static
+library from LinkKit's XCFramework when it configures the Xcode project.
+
+For offline or local dependency development, pass `YARMI_JUCE_SOURCE_DIR`,
+`YARMI_LIBPD_SOURCE_DIR`, `YARMI_LINK_SOURCE_DIR`, and (on iOS)
+`YARMI_LINKKIT_SOURCE_DIR` as CMake cache paths. See [THIRD_PARTY.md](THIRD_PARTY.md) before binary
+distribution.

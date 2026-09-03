@@ -39,6 +39,18 @@ Required native platform horizon:
 - Windows;
 - Linux.
 
+## Current implementation checkpoint
+
+Steps 1–5 below are implemented in the first portable station. The shared JUCE target now has a
+touch/mouse step instrument, an embedded libpd backend, Link/LinkKit timing, real-time diagnostics,
+and pinned CMake builds for macOS and iPadOS. It has been runtime-smoke-tested on macOS and iPad
+Simulator, including non-silent embedded-DSP output tests and two local processes discovering one
+another as Link peers.
+
+The next evidence gate is still physical and musical: run a signed build on an iPad, then complete
+Steps 6–7 with at least two independent Link peers and record the first playing notes under
+`docs/playability/`. VST3 hosting remains Step 8; do not add it before that playing pass.
+
 ## Existing disposable proof
 
 `apps/ios-proof/` is an Apple-native SwiftUI + RealityKit/ARKit existence proof. It is not the portable architecture.

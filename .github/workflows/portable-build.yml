@@ -1,0 +1,47 @@
+name: Portable station build
+
+on:
+  push:
+    paths:
+      - "CMakeLists.txt"
+      - "Source/**"
+      - "Resources/**"
+      - "cmake/**"
+      - "tests/**"
+      - "scripts/**"
+      - ".github/workflows/portable-build.yml"
+  pull_request:
+    paths:
+      - "CMakeLists.txt"
+      - "Source/**"
+      - "Resources/**"
+      - "cmake/**"
+      - "tests/**"
+      - "scripts/**"
+      - ".github/workflows/portable-build.yml"
+
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: ./scripts/configure-macos.sh -DBUILD_TESTING=ON
+      - name: Build
+        run: >-
+          cmake --build build-macos --config Debug --target
+          YarmiStation YarmiCoreTests YarmiAudioTests
+      - name: Test
+        run: ctest --test-dir build-macos -C Debug --output-on-failure
+
+  ios-simulator:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: ./scripts/configure-ios.sh --simulator
+      - name: Compile for iPad simulator
+        run: >-
+          cmake --build build-ios-simulator --config Debug --target YarmiStation
+          -- -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO

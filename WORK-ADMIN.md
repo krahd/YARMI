@@ -3,7 +3,7 @@
 - **Canonical project repository:** `krahd/YARMI`
 - **Canonical project identity:** `krahd/tom-work-admin/registry/projects.yaml`
 - **Human cross-domain record:** `krahd/tom-work-admin/projects/yarmi.md`
-- **Current status:** active; iOS/iPadOS AR existence proof compile-verified; portable/playable v0 architecture now fixed narrowly enough to implement; real-device AR validation and portable JUCE implementation pending
+- **Current status:** active; portable JUCE/libpd/Link station prototype implemented and runtime-smoke-tested on macOS and iPad Simulator; local two-process Link discovery verified; physical-iPad and cross-device playing sessions pending
 - **Working names:** YARMI 2.0 / YARMI 2026; final public title not fixed
 - **Type:** artwork / software / computer-music / interaction-research project
 
