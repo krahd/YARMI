@@ -1,101 +1,92 @@
-# YARMI protocol — design basis
+# YARMI protocol — deferred design basis
 
-Status: architecture design, not yet a frozen wire specification.
+Status: **not a v0 wire specification**.
 
-## Principle
+The first playable YARMI iteration uses Ableton Link for shared musical timing and does not require a general-purpose YARMI control/state network merely to satisfy architectural completeness.
 
-The **YARMI protocol is not OSC**. It is a versioned semantic contract describing YARMI entities, events, commands, state transitions, timing information and authority relations.
+## Current rule
 
-OSC is expected to be a first-class interoperability mapping because of its broad use in computer music. The core protocol must remain serialisable over other transports without changing YARMI semantics.
+Do not design or implement a broad distributed protocol before a musical behaviour needs semantic station-to-station exchange.
 
-## Why not define YARMI directly as OSC?
+When that need appears:
 
-OSC is an excellent message representation/interoperability mechanism, but YARMI needs additional guarantees and semantics that should be stated independently:
+1. identify the exact musical interaction;
+2. identify the smallest shared state/actions needed;
+3. define timing, ordering, identity and failure behaviour required by that interaction;
+4. implement the minimum transport-independent semantic contract;
+5. choose a transport/encoding appropriate to the measured requirement;
+6. play it and revise.
 
-- stable entity identity;
-- schema/version negotiation;
-- message/event identity;
-- causal or revision relationships where needed;
-- ordering requirements per message class;
-- idempotence/replay behaviour;
-- station/ensemble membership semantics;
-- authority grants, scopes, leases and revocation;
-- state snapshots and incremental changes;
-- capability discovery;
-- conflict behaviour for multiple authorities;
-- timing intent distinct from packet arrival time;
-- transport-specific reliability policy.
+## Link is timing, not the YARMI protocol
 
-An OSC adapter can encode these concepts through address patterns and arguments, but the OSC representation must be derived from the canonical semantic schema.
+Ableton Link is the complete v0 ensemble tempo/beat/phase synchronisation substrate. It does not define YARMI musical entities or station control.
 
-## Initial conceptual entities
+A first ensemble may therefore consist of several independent YARMI stations that share Link timing but exchange no YARMI semantic messages at all.
 
-These names are provisional and will be tested before implementation:
+That is a valid v0 architecture.
 
-- `EnsembleId`
-- `StationId`
-- `EntityId`
-- `ActionId`
-- `AuthorityDomain`
-- `AuthorityGrant`
-- `Capability`
-- `MusicalTime`
-- `StateRevision`
+## Future semantic protocol principle
 
-The core should not assume that a musical entity is spatial, audible, visual, tangible or controlled by one person.
+If/when station-to-station control or shared state is needed, YARMI should define a versioned semantic contract independently of a particular wire technology.
 
-## Message families
+Potential concepts include:
 
-Candidate families:
+- station identity;
+- entity/action identity;
+- musical-time annotations;
+- shared state snapshots or deltas;
+- ordering/idempotence requirements;
+- membership/discovery information;
+- capability information;
+- later, only if needed, authority relations.
 
-### Discovery / membership
+These are candidate requirements, not mandatory message families.
 
-- station announces/join request;
-- capabilities advertised;
-- membership accepted/observed;
-- station leaves/expires;
-- subensemble created/changed.
+## OSC
 
-### State / action
+OSC remains a strong interoperability candidate because of its broad use in computer music.
 
-- create/delete entity;
-- mutate entity property;
-- perform semantic action;
-- request/supply state snapshot;
-- acknowledge/reject action where policy requires it.
+Do not define YARMI itself as an OSC address tree. If OSC is adopted, it should encode the semantic messages required by the current musical interaction.
 
-### Authority
+OSC is not automatically the first control transport; its use should be justified by the first real networked interaction.
 
-- propose/grant authority;
-- revoke authority;
-- authority lease renewal/expiry;
-- change authority policy;
-- resolve or report conflicting writes.
+## Local/in-process path
 
-### Timing
+Local calls or IPC may implement the same musical actions without networking. This remains useful for tests, single-device components and simulated multi-station work.
 
-The protocol may carry musical-time annotations and timing intentions, but network synchronisation should remain replaceable. Ableton Link, DAW clocks or internal clocks may establish a shared timeline independently.
+## Future transport questions
 
-## Transport adapters
+Only answer these when measurements/use cases require them:
 
-### OSC
+- reliable versus unreliable delivery;
+- UDP/TCP/QUIC/WebSocket/other transport;
+- discovery mechanism;
+- NAT/remote performance requirements;
+- retransmission;
+- state replication;
+- persistence/session recovery;
+- conflict resolution;
+- capability negotiation.
 
-Likely first interoperability adapter. OSC address spaces should be generated/documented from YARMI semantic messages rather than becoming the domain model.
+## Authority — deliberately absent from v0 protocol
 
-### Local in-process / IPC
+Do not implement authority grants, leases, leader elections, revocation, consensus or hierarchical control in the initial protocol.
 
-A station should be able to run the same semantic model without networking. Local transports are required for tests and for single-device multi-component applications.
-
-### Future network transports
-
-Reliable and unreliable channels may eventually be separated. Candidate transports are deliberately not fixed before latency, discovery, NAT, mobile networking and failure requirements are measured.
+If musical use later shows that Link's egalitarian control model creates a real problem, authority can be introduced as a semantic extension. The architecture preserves the possibility of fixed, dynamic, multiple, hierarchical and domain-specific authority without pre-building it.
 
 ## DAW/plugin boundary
 
-VST3, AU/AUv3, CLAP and DAW APIs are not YARMI protocol transports. They are integration adapters that translate host/plugin parameters, notes, transport information, automation and audio/MIDI streams to/from YARMI concepts.
+VST3, AU/AUv3, LV2/CLAP and DAW APIs are integration surfaces, not YARMI network transports.
 
-Ableton Link is similarly a timing adapter, not the YARMI control protocol.
+For the first desktop integration, JUCE may host VST3 instruments/effects locally. Ableton Live may participate through Link without becoming a YARMI dependency.
 
-## Compatibility rule
+## Compatibility principle
 
-A manifestation that replaces OSC with another transport, libpd with another audio engine, or AR interaction with touch/haptics must remain recognisably the same YARMI system at the semantic level.
+A YARMI manifestation should remain recognisably the same musical system if:
+
+- libpd is replaced by another audio backend;
+- one physical interface is replaced by another;
+- a future control transport is replaced;
+- a DAW/plugin integration is absent.
+
+This compatibility principle is more important than preserving any particular speculative protocol schema.
