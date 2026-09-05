@@ -12,6 +12,8 @@ This repository must be recoverable without chat history. Before changing YARMI 
 8. `docs/PROTOCOL.md` and `docs/SEMANTICS.md` — deliberately minimal coordination/network semantics.
 9. `WORK-ADMIN.md` — cross-repository ownership/status.
 
+For a decision-by-decision persistence check, `docs/RECOVERABILITY-AUDIT-2026-09-04.md` records the 4 September 2026 audit matrix and known cross-repository reconciliation state. It is an audit snapshot, not an authority layer.
+
 Also follow the hard public-facing-file rule in `krahd/tom-work-admin/PUBLIC-FACING-FILE-SAFETY.md` whenever creating any text intended for publication, submission, portfolio use, a public project page, CV, proposal or other external delivery.
 
 ## Decision precedence
@@ -41,10 +43,10 @@ Do not leave contradictions behind. A material decision change must update every
 - The existing `codex/playable-prototype-v0` branch is a technology spike. **Do not merge it wholesale.** Reuse infrastructure selectively; the 4×16 grid may later become a station component.
 - JUCE is a useful portable process/audio/MIDI host, not the ontology of a station. Native ARKit/ARCore, openFrameworks or other manifestation-specific runtimes may coexist.
 - libpd is the first local DSP candidate behind a replaceable output boundary.
-- YARMI must be able to control VST/other sound endpoints **without caring where they are hosted**.
+- YARMI must be able to control VST/other sound endpoints **without caring where they are hosted**; DAWs are optional integration environments, never dependencies.
 - Ableton Link is the first shared timing substrate; consume shared/absolute musical time and derive station-specific periods locally. Link is not authority or the YARMI protocol.
 - No authority subsystem, broad replication framework or universal control protocol is implemented until musical use requires it; future architecture must not preclude leaderless, fixed/dynamic/multiple/hierarchical/domain-specific leadership.
-- If semantic networking becomes necessary, define YARMI semantics independently of transport; OSC is an adapter candidate, not YARMI itself.
+- If semantic networking becomes necessary, define a minimal **versioned, transport-independent** YARMI semantic contract; OSC is an adapter candidate, not YARMI itself.
 - Required native platform horizon: iPhone/iPad, Android, macOS, Windows, Linux.
 - Historical YARMI code and student implementation decisions are evidence only. Nothing is inherited automatically.
 
