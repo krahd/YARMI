@@ -90,6 +90,8 @@ Rotation is one possible observable channel, not the definition of a manipulator
 
 The station binds available manipulator channels to its own musical components. The station's internal component vocabulary is not promoted into global YARMI semantics merely because the first station uses it.
 
+Markerless runtime acquisition of a suitable arbitrary physical object is a **current first-station requirement**, not merely a future possibility. The first implementation targets reliable 2D/2.5D channels and visible confidence rather than universal arbitrary-object 6-DoF.
+
 See `MANIPULATORS.md`.
 
 ## Timing
@@ -134,7 +136,7 @@ It is not the required rendering/sensing host for every station. openFrameworks 
 
 There is deliberately no requirement to finalise a general distributed YARMI protocol before the first playable Link-synchronised stations exist.
 
-When musical interaction first requires semantic exchange between stations, define the smallest protocol that supports the observed behaviour. Preserve transport independence at that boundary, but do not pre-implement replication systems, discovery frameworks or conflict algorithms without evidence.
+When musical interaction first requires semantic exchange between stations, define the smallest **versioned**, transport-independent protocol that supports the observed behaviour. Do not pre-implement replication systems, discovery frameworks or conflict algorithms without evidence.
 
 OSC remains a likely interoperability adapter because of its role in computer music, not a predetermined canonical protocol.
 
@@ -142,7 +144,7 @@ OSC remains a likely interoperability adapter because of its role in computer mu
 
 The first canonical station is a **revised original YARMI design**, not an archival recreation.
 
-Its initial component vocabulary may include:
+Its initial component vocabulary includes:
 
 - freely arranged tracks;
 - explicit musical period independent of geometric length;
@@ -152,30 +154,33 @@ Its initial component vocabulary may include:
 - immediate components/effects;
 - station/global controls;
 - manipulators assigned to component parameters;
-- performer and audience renderings.
+- performer and audience renderings;
+- markerless runtime acquisition of at least one suitable arbitrary physical Manipulator.
 
 Historical ideas are retained only where they remain musically useful.
 
 The existing 4×16 Codex grid prototype is not YARMI core. It may later become a **GridSequencer component** inside a station and acquire YARMI-style manipulators/augmentation.
 
-## Large-schema design envelope
+See `FIRST-STATION.md` and `PLAYABILITY.md`.
 
-The architecture should remain conceptually compatible with, but does not currently implement:
+## Deferred design envelope
 
-- heterogeneous station/device capabilities;
-- discovery and ad-hoc membership;
+The architecture should remain conceptually compatible with, but does not currently implement by default:
+
+- heterogeneous station/device capability negotiation;
+- general discovery and ad-hoc membership protocols beyond what Link/current platform facilities provide;
 - shared/replicated semantic state;
 - subensembles;
 - multiple authority domains/topologies;
 - multiple timing backends;
 - persistence/session recovery;
 - multiple network transports;
-- several sensing/tracking systems;
-- markerless arbitrary-object manipulators;
-- hands/body/touch/haptic controls;
-- several DSP engines;
-- DAW/plugin/hardware adapters;
-- heterogeneous performer/audience renderings of one station.
+- persistent arbitrary-object reacquisition after long occlusion or leaving/re-entering view;
+- robust arbitrary-object full 6-DoF on all target hardware;
+- additional hand/body/haptic sensing systems beyond the first station's needs;
+- several simultaneous DSP engines;
+- general DAW/plugin/hardware adapter frameworks;
+- complex heterogeneous audience-rendering distribution across venues/devices.
 
 These are retained as a design horizon so that first-iteration choices do not unnecessarily close them off. They are not a roadmap of mandatory abstractions.
 
