@@ -1,343 +1,179 @@
 # YARMI development plan
 
-Status: current working plan as of 2026-09-03.
-
-This document is written so work can continue directly from Codex, Claude Code or another development environment without reconstructing the design discussion from chat history.
+Status: current handoff after the September 2026 architecture/playability audit.
 
 ## Governing method
-
-YARMI is not developed by completing a speculative architecture and then implementing it. The architecture and instrument co-evolve.
 
 ```text
 implement -> play -> observe -> revise -> play again
 ```
 
-Early evaluation is primarily musical and performative. Tomas Laurenzo is the principal initial performer/designer. Repeated first-person use is sufficient evidence to change the implementation or architecture. Formal user research can come later if a research question requires it.
-
-Do not implement an abstraction merely because a future distributed instrument could need it.
-
-## Current first-iteration decisions
-
-The first portable/playable implementation uses:
-
-- **JUCE** as native cross-platform application/audio/MIDI host;
-- **libpd** as the first embedded DSP backend behind a replaceable interface;
-- **Ableton Link** for 100% of ensemble tempo/beat/phase synchronisation;
-- **JUCE VST3 hosting** as the first desktop third-party-plugin integration path;
-- no dependency on Ableton Live;
-- no dependency on standalone Pd;
-- no YARMI authority/leader-management subsystem;
-- no custom clock/synchronisation system;
-- no requirement for a general network control protocol until a musical interaction needs one;
-- no fixed physical interface in the semantic core.
-
-Required native platform horizon:
-
-- iPhone/iPad;
-- Android;
-- macOS;
-- Windows;
-- Linux.
-
-## Existing disposable proof
-
-`apps/ios-proof/` is an Apple-native SwiftUI + RealityKit/ARKit existence proof. It is not the portable architecture.
-
-Before discarding or superseding it:
-
-1. run it on a physical iPhone/iPad;
-2. confirm AR placement, cursor movement and audible triggering;
-3. fix only defects necessary to validate that narrow proof;
-4. record findings;
-5. do not grow it opportunistically into the portable runtime.
+The architecture and instrument co-evolve. Do not implement an abstraction merely because a generic distributed musical framework might need it.
 
 ## Immediate implementation sequence
 
-### Step 1 — Establish portable JUCE skeleton
+### 0 — Read the controlling design documents
 
-Create the smallest JUCE/CMake application structure that can become the common host for desktop/mobile builds.
+Before code changes, follow `AGENTS.md`. In particular, `DECISIONS.md`, `FIRST-STATION.md`, `PLAYABILITY.md` and `MANIPULATORS.md` control the implementation direction.
 
-Initial success condition:
+### 1 — Preserve, do not merge, the existing Codex prototype
 
-- application starts;
-- audio device opens;
-- audio callback runs cleanly;
-- basic MIDI/device information can be inspected;
-- core code is not coupled to UI manifestation code.
+`codex/playable-prototype-v0` is a technology spike. Do not merge it wholesale.
 
-Do not design a complete domain model first.
+Use `PROTOTYPE-V0-AUDIT.md` to port only infrastructure that survives the architecture audit: CMake/JUCE setup, Link adapters, libpd lifecycle/quantum handling, diagnostics, CI/tests.
 
-### Step 2 — Define the minimum audio boundary
+### 2 — Device-validate the existing tiny AR proof
 
-Create an `AudioBackend` interface with only the methods required by the first playable patch/instrument.
+Run `apps/ios-proof/` on a real iPhone/iPad. Confirm AR placement, cursor motion and audible triggering. Fix only proof-blocking defects.
 
-Implement `LibPdBackend` first.
+This validates the narrow AR path; it is not the canonical station implementation and its display-frame musical scheduling must not be retained.
 
-Responsibilities:
+### 3 — Establish the revised-original station model
 
-- initialise/close libpd;
-- adapt JUCE callback block sizes to Pd's processing quantum;
-- move control/events into the audio backend without blocking the real-time thread;
-- report basic health information;
-- avoid making Pd responsible for station/ensemble state.
+Implement the smallest station-local model required by `FIRST-STATION.md` rather than a universal musical ontology.
 
-Native JUCE/C++ DSP is a future backend, not parallel v0 implementation work unless libpd immediately fails a requirement.
+Initial concerns include:
 
-### Step 3 — Instrument real-time behaviour from the beginning
+- track geometry;
+- track period;
+- temporal position of sound/event components;
+- local effects;
+- immediate components/effects;
+- station/global controls;
+- Manipulator bindings;
+- performer/audience render state.
 
-Capture enough diagnostics to detect whether the architecture is musically viable:
+Keep the station model independent of one rendering/sensing framework and one audio endpoint.
 
-- sample rate;
-- device buffer size;
-- reported input/output latency where available;
-- callback/xrun/underrun information where available;
-- maximum/average callback load if practical;
-- Link timing observations;
-- obvious scheduling jitter or drift symptoms.
+### 4 — Establish generic output boundaries
 
-Do not optimise before measurement, but do not postpone observability until after problems appear.
+Port/refactor the useful libpd work from the prototype without preserving lane/cutoff-specific interfaces.
 
-### Step 4 — Add Ableton Link as the complete v0 timing service
+The station/component must be able to drive:
 
-Expose the minimum timing information needed by the first instrument.
+- embedded libpd first;
+- later native DSP;
+- an external VST/plugin host;
+- MIDI/hardware/other endpoints.
 
-Do not implement:
+YARMI semantics must not care where a VST is hosted.
 
-- leader clock;
-- custom synchronisation;
-- authority over tempo;
-- election;
-- consensus.
+Instrument sample rate, buffer size, latency/xrun/callback load and scheduling behaviour from the beginning.
 
-Stations use Link as peers.
+### 5 — Build the first augmented station rendering
 
-### Step 5 — Make one station musically playable
+Use the shortest credible path on iPhone/iPad first, likely native ARKit/RealityKit where useful. JUCE may provide portable audio/MIDI/process services without becoming the required AR UI framework.
 
-Build the smallest interaction that permits sustained playing rather than only technical testing.
+Implement:
 
-The physical/UI manifestation is intentionally open. A simple temporary touch/desktop interface is acceptable if it gets to musical use faster. The existing AR proof may inform a manifestation but does not define the interaction grammar.
+- arbitrary-position/orientation line-segment tracks;
+- visible current-time cursor;
+- sound/event placement;
+- station state renderable to performer view and public/audience view.
 
-Do not assume historical YARMI tracks, zones, tokens or mappings.
+The first audience view may be a mirrored/external display if that is the quickest legible implementation; preserve the ability to render it independently later.
 
-### Step 6 — Run two or more independent stations
+### 6 — Implement Manipulator v0
 
-Run YARMI on at least two independent processes/devices sharing Link time.
+First target:
 
-First multi-station success criteria:
+1. performer taps/selects one suitable arbitrary rigid visible object;
+2. acquire a region/mask;
+3. track visual features frame-to-frame;
+4. expose translation/scale/in-plane rotation when reliable;
+5. use depth for world position where available;
+6. report channel suitability/tracking confidence;
+7. bind a supported channel to any manipulable first-station parameter;
+8. visibly degrade/lose the binding rather than silently output incorrect control.
 
-- stations join/leave without a central YARMI leader;
-- beat/phase relationship is musically stable enough to play;
+Semantic category recognition is not required. Prefer lightweight tracking after acquisition; promptable segmentation may be used to initialise/correct the object mask.
+
+### 7 — Complete the first station's sequence/direct-manipulation grammar
+
+Add enough behaviour to test the playability contract:
+
+- explicit track periods independent of geometric length;
+- default track-start manipulation of period/bars;
+- direct manipulation of sound/event primary parameters;
+- one track-local effect;
+- one immediate musical interaction;
+- one station/global control;
+- an additional Manipulator assigned to another parameter.
+
+Do not reproduce historical mappings if they are not musically useful.
+
+### 8 — Integrate Ableton Link correctly
+
+Link supplies shared tempo/beat time. Each track derives its own phase/period locally from shared/absolute musical time.
+
+Do not bake a fixed four-beat quantum into station semantics. Do not implement leader clock, election, consensus or authority.
+
+### 9 — Play the station repeatedly
+
+Create `docs/playability/` when real playing begins. Record concise observations about musical usefulness, friction, unexpected possibilities, tracking, audience legibility, DSP and timing. Change architecture only when an observation or concrete portability/reliability need warrants it.
+
+### 10 — Prove host-agnostic external sound control
+
+Once the local station is playable, route one station/component to an external VST synthesiser or effect through a suitable adapter. The test passes if musical behaviour remains the same regardless of whether that VST is hosted by YARMI, Ableton, Reaper, Bitwig or another host.
+
+Do not build a general plugin host merely to satisfy this test.
+
+### 11 — Run two or more stations
+
+Run at least two independent stations/devices sharing Link time.
+
+Success criteria:
+
 - each station remains independently playable;
-- temporary loss/rejoin does not require rebuilding the whole ensemble;
-- no custom authority subsystem is involved.
+- join/leave is musically tolerable;
+- timing is stable enough to perform;
+- no YARMI authority subsystem is required;
+- audience-visible state remains intelligible.
 
-This test does **not** require YARMI semantic state replication yet.
+This does not require YARMI semantic replication yet.
 
-### Step 7 — Play, repeatedly
+### 12 — Introduce semantic networking only when needed
 
-Use the instrument in real musical sessions rather than only automated tests.
+When a concrete piece/interaction needs station-to-station semantic control/state beyond Link, define the smallest transport-independent semantics for that behaviour and then choose a transport. OSC remains a likely adapter, not the protocol definition.
 
-Keep concise observations under `docs/playability/` (create when first used), recording:
+### 13 — Revisit the grid as a component only if useful
 
-- what was attempted;
-- what felt musically useful;
-- what obstructed playing;
-- what unexpected possibilities appeared;
-- whether the issue is semantic, interactional, DSP, timing, networking or physical manifestation;
-- the smallest architectural change suggested by the observation.
+The Codex 4×16 sequencer may become a `GridSequencer` station component. If revived, give it YARMI-style augmentation/manipulation rather than reinstating it as core.
 
-Avoid converting the diary into a formal user-study apparatus.
+### 14 — Expand platform coverage continuously
 
-### Step 8 — Add JUCE VST3 hosting on desktop
-
-Once the local audio/timing loop is stable enough to play, add a minimal plugin-host path so a station can use third-party VST3 instruments/effects.
-
-Requirements:
-
-- hosted plugin identity does not become a YARMI core concept;
-- plugin instantiation is local to the station;
-- failures remain local where possible;
-- YARMI runs without any hosted plugin;
-- Ableton Live is unnecessary.
-
-Evaluate AU/AUv3/LV2/CLAP later according to actual platform/use needs.
-
-### Step 9 — Introduce semantic networking only when a piece needs it
-
-If a musical idea requires station A to affect station B beyond sharing Link time, define the smallest required state/action exchange then.
-
-Do not start by implementing a universal YARMI protocol.
-
-The first requirement may be extremely small, for example:
-
-- create/remove one shared musical entity;
-- share a parameter;
-- address another station;
-- form a temporary subensemble;
-- exchange an event scheduled at a future Link beat.
-
-From that behaviour, derive the protocol requirements.
-
-### Step 10 — Expand platform coverage continuously
-
-The architectural target is native iOS/iPadOS, Android, macOS, Windows and Linux.
-
-Do not postpone all non-macOS work until the end. Once the JUCE/libpd/Link skeleton is stable, establish compile/smoke-test coverage across the target families so platform assumptions are discovered early.
+The target remains iPhone/iPad, Android, macOS, Windows and Linux. Establish compile/smoke-test coverage early enough to expose platform assumptions, but do not block the first playable AR station on simultaneous full-platform feature parity.
 
 ## Decision gates
 
-### Does Link remain sufficient?
+### Link
 
-Stay with Link unless playing demonstrates a concrete limitation. Possible evidence for change:
+Keep Link unless playing demonstrates a concrete problem it cannot solve.
 
-- required authority over tempo/phase;
-- coordination behaviour Link cannot express;
-- unacceptable recovery/rejoin behaviour;
-- multiple simultaneous timing domains;
-- measured timing/playability problems not solvable locally.
+### Authority
 
-If none appears, do not invent a custom synchronisation layer.
+Do not implement authority because historical YARMI had a leader or because distributed-systems theory suggests it. Preserve the future possibility of leaderless, fixed, dynamic, multiple, hierarchical, domain-specific and subensemble authority.
 
-### Do we need authority semantics?
+### libpd
 
-Do not implement authority because the original YARMI had a leader station or because distributed-systems theory suggests it.
+Keep libpd while latency, stability, dynamic structure, portability and maintainability are acceptable. Move DSP only for a concrete gain.
 
-Implement it only if a musical situation repeatedly requires some stations to control or constrain others.
+### Manipulator tracking
 
-If needed, preserve topology agnosticism. Candidate future configurations include no leader, one fixed leader, dynamic leader assignment, several leaders, domain-specific leaders, hierarchical leaders/subleaders and subensemble authority.
+Do not promise universal arbitrary-object 6-DoF. Start with runtime acquisition plus reliable observable channels. Add depth, reacquisition or object-centric 6-DoF only when a musical use requires them.
 
-### Does libpd remain the right audio backend?
+### First station scope
 
-Stay with libpd while it supports the desired instrument with acceptable:
-
-- latency;
-- stability;
-- real-time behaviour;
-- dynamic musical structure;
-- portability;
-- maintainability.
-
-Move specific DSP to native JUCE/C++ only when there is a concrete gain.
-
-### Do we need a YARMI network protocol?
-
-Only when Link-only independent stations are insufficient musically.
-
-Derive protocol semantics from the first real shared interaction. OSC remains a likely interoperability option, not a predetermined canonical transport.
-
-### Which physical manifestation becomes primary?
-
-Open. Current ideas include:
-
-- spatial AR YARMI: virtual musical nodes/entities placed in 3D space;
-- object YARMI: arbitrary physical objects become instantiated musical entities/stations and are computationally/visually overwritten or augmented;
-- a combined object-plus-spatial manifestation;
-- touch/conventional mobile/desktop manifestations;
-- hands/body tracking;
-- projectors;
-- AR glasses;
-- VR/XR;
-- tactile/haptic configurations;
-- marker-based interaction if it proves musically useful again.
-
-No physical modality has architectural privilege.
-
-## Large-schema plan / design horizon
-
-The following possibilities must remain documented so early implementation does not accidentally rule them out. They are **not current implementation requirements**.
-
-### Ensemble topology
-
-Potential future support:
-
-- peers with no leader;
-- one fixed leader;
-- elected/dynamic leader;
-- multiple simultaneous leaders;
-- authority scoped to different musical/control domains;
-- hierarchical leaders/subleaders;
-- temporary local/subensemble leaders;
-- heterogeneous station roles.
-
-### Timing
-
-Potential future timing backends:
-
-- Ableton Link (v0 and current default);
-- DAW clock;
-- custom YARMI clock;
-- multiple clock domains;
-- topology-dependent or deliberately drifting time if artistically useful.
-
-### Shared state/networking
-
-Potential future needs:
-
-- station discovery;
-- ad-hoc membership;
-- shared entities;
-- snapshots/deltas;
-- capability negotiation;
-- ordering/idempotence/replay;
-- scheduled future events;
-- persistence/session recovery;
-- several transports;
-- local and remote ensembles;
-- conflict semantics.
-
-### Audio/integration
-
-Potential future components:
-
-- native JUCE/C++ DSP;
-- multiple simultaneous DSP backends;
-- VST3/AU/AUv3/LV2/CLAP hosting;
-- YARMI as a plugin;
-- MIDI/OSC hardware/software;
-- DAWs as optional stations/adapters;
-- external hardware instruments.
-
-### Manifestation
-
-Potential future manifestations may use any combination of:
-
-- screens/touch;
-- fiducials;
-- arbitrary objects;
-- computer vision;
-- hands/body;
-- projection;
-- spatial AR;
-- phones/tablets;
-- AR glasses;
-- VR/XR;
-- tangible/haptic systems;
-- non-spatial controllers.
-
-The semantic core should not force one manifestation's ontology onto another.
-
-## Historical YARMI recovery
-
-If/when the original codebase is found:
-
-1. archive it separately from the new implementation;
-2. document build/runtime assumptions if recoverable;
-3. inspect Pd patches, networking, station semantics, mappings and UI only as historical evidence;
-4. classify observations as `historical-observation`, `candidate`, or `rejected`;
-5. import nothing automatically;
-6. never allow historical student implementation choices to become requirements by inertia.
-
-The recovered code is archaeological material, not a base branch for YARMI 2.0.
+Do not add curves, universal component schemas, complex routing, persistent sessions, shared-state replication or a component marketplace before the first revised-original station is genuinely playable.
 
 ## Definition of progress
 
-Progress is not measured by how much of the large-schema plan exists in code.
+Progress means:
 
-The project is progressing when:
-
-- the instrument becomes more playable;
-- more interesting musical behaviour becomes possible;
-- latency/timing/reliability remain acceptable;
-- new manifestations can be attempted without rewriting unrelated layers;
-- architecture becomes simpler or more precise in response to actual use;
-- technical decisions remain reversible where there is genuine uncertainty.
+- the station becomes more playable;
+- performer action and musical consequence become more legible to the audience;
+- arbitrary objects can become useful manipulators without fiducials;
+- the architecture remains understandable and replaceable at genuinely volatile boundaries;
+- timing/latency/reliability are good enough for performance;
+- external sound generation can be swapped without changing station musical semantics;
+- multiple stations can join an ensemble without forcing premature distributed-system machinery.

@@ -1,174 +1,169 @@
 # YARMI design decisions
 
-This file records current decisions and explicitly open choices. Historical YARMI decisions are not presumed valid. Architecture is itself provisional: decisions may be revised when sustained musical use demonstrates that another structure is better.
+This file is the controlling repository record for current design decisions. Architecture remains revisable through sustained musical use, but a change is not complete until this file and every affected handoff/specification are reconciled.
 
-## Governing development rule
-
-### D0 — Playability precedes architectural generality
-
-YARMI is developed by repeated cycles of:
+## D0 — Playability precedes architectural generality
 
 ```text
-implement -> play -> observe requirement/friction/possibility -> revise -> play again
+implement -> play -> observe -> revise -> play again
 ```
 
-Do not implement complexity merely because a distributed musical system might theoretically need it. A feature, abstraction, protocol or authority mechanism should earn its place through musical use, implementation necessity, portability, reliability, or a concrete manifestation requirement.
+Do not build speculative distributed-system generality merely because it is conceivable. Features and abstractions must earn their place through musical use, portability, reliability, integration or a concrete station requirement.
 
-Tomas Laurenzo is the principal initial performer/designer and sustained first-person musical use is valid design evidence for early iterations. Formal user studies are not a prerequisite for changing the instrument.
+Keep the architecture intelligible, understandable, open and coherent: do not aim for the moon and hit our foot.
 
-## Fixed decisions for the first portable/playable iteration
+## D1 — From-scratch implementation
 
-### D1 — From-scratch implementation
+YARMI 2 is a new implementation/contemporary continuation. Historical code, mappings, networking, Pd organisation, station roles and student implementation decisions are evidence only and are inherited only after a new independent decision.
 
-YARMI 2.0 / YARMI 2026 is implemented from scratch. Historical code may be recovered and studied, but no code, semantics, mapping, interaction grammar, DSP organisation, networking model or architecture is inherited automatically.
+## D2 — Station is a first-class YARMI concept
 
-### D2 — YARMI stations are augmented; their physical implementation remains open
+YARMI is not generic distributed-music middleware. It is an ensemble of **augmented musical stations**.
 
-A **station** remains a first-class YARMI concept. YARMI is not being reduced to generic distributed-music middleware.
+A station is an independently playable augmented musical locus that may participate in an ad-hoc ensemble. It is not intrinsically one device/process, one performer, one sensing system, one sound generator, one geometry or one musical component design.
 
-A YARMI station is an independently playable augmented musical locus that presents an intelligible relationship between performer action, computational state and musical consequence, and that may participate in an ad-hoc ensemble with other stations.
+One logical station may span several devices/processes.
 
-The station concept does **not** prescribe how augmentation is implemented. A station may use projection, camera-mediated AR, spatial displays, phones/tablets, AR glasses, tracked objects, hands, touch, haptics, or other physical/computational arrangements. One logical station may span several devices.
+## D3 — Augmentation is constitutive; implementation is open
 
-The semantic centre must not require fiducials, one screen type, one camera topology, one sensing technology, one audio engine, one performer, or one physical form.
+Every YARMI station is augmented. Augmentation may use projection, camera-mediated AR, spatial displays, AR glasses, tracked physical objects, touch, hands, haptics or other arrangements.
 
-### D3 — Audience intelligibility is constitutive
+The sensing/rendering implementation is replaceable; the requirement that the station's physical/performance situation and computational representation be meaningfully coupled is not optional.
 
-Audience intelligibility is a defining requirement of YARMI rather than a decorative presentation feature.
+## D4 — Audience intelligibility is the reason for the instrument
 
-A station must make consequential relationships between performer action, computational transformation and musical result available to observation. Performer and audience views may be the same or different, but an implementation visible only to the performer is incomplete as a YARMI station until it also provides a public manifestation of the relevant state/action relationship.
+Audience intelligibility is constitutive, not decorative. Consequential performer action, computational transformation and musical result must have a publicly observable relationship.
 
-This does not require exposing every internal parameter. It requires that the performance not collapse into an opaque relation of hidden input followed by unexplained sound.
+Performer/audience renderings may be the same or different. A private headset/phone experience is incomplete as a YARMI station until the relevant performance state/action relationship also has a public manifestation.
 
-### D4 — Native cross-platform target
+## D5 — First canonical station is a revised original-YARMI design
 
-The portable implementation must support native applications on:
+The first station deliberately revisits the original interaction proposition because it is a useful design, not because it deserves historical preservation.
 
-- iPhone/iPad;
-- Android;
-- macOS;
-- Windows;
-- Linux.
+Required first-station ideas are specified in `FIRST-STATION.md`: freely arranged tracks, explicit periods, visible cursors, track sound/event components, track-local effects, immediate interaction, station/global controls, manipulators, and audience rendering.
 
-### D5 — JUCE is the first portable process/application host
+This is not an archival recreation; every historical mapping remains revisable.
 
-JUCE is the first portable host for application lifecycle, audio device access, MIDI and desktop/mobile deployment. This is a first implementation choice, not a claim that every YARMI station must be a single JUCE application.
+## D6 — Track geometry and musical period are distinct
 
-openFrameworks remains available as a manifestation-specific graphics/CV/creative-coding layer if useful. Native AR/VR/platform frameworks may also be used. A logical station may combine components hosted by different processes/devices.
+Tracks must not collapse into a fixed rectangular 16-step grid.
 
-### D6 — libpd is the first DSP backend
+The first implementation uses freely positioned/oriented line segments. Geometry and musical duration/period are independent. A historical-style binding may let the track-start manipulator change the number of bars, but that is a manipulable parameter mapping, not a centimetre-to-time law.
 
-The first portable playable implementation uses embedded libpd behind a replaceable audio/output boundary. Pd is chosen for rapid and proven real-time musical DSP, not as the owner of YARMI semantics.
+Curves/non-linear geometry may come later if musically useful.
 
-Pd must not own ensemble membership, networking, interaction semantics, physicality, authority or application lifecycle. Native JUCE/C++ DSP and external sound generators remain interchangeable alternatives.
+## D7 — Manipulator is the performer-control concept
 
-### D7 — Ableton Link is the complete first ensemble timing substrate
+A **Manipulator** is a performer-controlled source bound to a manipulable musical element/parameter.
 
-The first iteration uses Ableton Link for shared tempo/beat/phase timing. Do not implement a custom clock, leader clock, election scheme or YARMI authority layer before musical use demonstrates a need.
+Rotation is only one channel. Translation, scale, distance, orientation, velocity, pressure, contact, hand gesture or another reliable observable may be used.
 
-Link is a timing substrate only. It is not the YARMI semantic/control protocol and does not make Ableton Live a dependency.
+Additional manipulators may be assigned to expose additional parameters of an existing musical component.
 
-### D8 — No authority subsystem in the first iteration
+## D8 — Runtime arbitrary objects may become manipulators
 
-The first iteration is peer-oriented and uses Link's shared timing behaviour. Do not implement leader election, authority grants, leases, consensus, subleaders, hierarchical control or conflict policies yet.
+The target fiducial-less interaction is instance acquisition, not semantic object recognition: the performer designates *this physical thing* and YARMI tracks it.
 
-The architecture should avoid assumptions that would make future authority arrangements impossible. If playability later demands authority, the larger design envelope includes no leader, one fixed leader, dynamic leader assignment, several leaders, domain-specific leaders, hierarchical leaders/subleaders, subensemble/local authority, and other policies discovered through use.
+Any suitable object may be used for any compatible manipulable element/parameter. The object only exposes channels that the sensing system can recover reliably.
 
-### D9 — Ableton Live and standalone Pd are not dependencies
+Observable asymmetry matters more than geometric asymmetry. A labelled cylinder may expose rotation; a perfectly uniform rotationally symmetric object does not. The interface must report suitability/confidence and never silently convert ambiguous tracking into musical control.
 
-Both may participate in a musical setup, but a YARMI ensemble must run without either application.
+The first target is runtime selection + region/mask acquisition + lightweight feature tracking + translation/scale/in-plane rotation where observable, plus depth/world position where available. Universal arbitrary-object 6-DoF is not a first requirement.
 
-### D10 — Sound endpoints are host-agnostic
+See `MANIPULATORS.md`.
 
-YARMI must be able to control a sound-producing or sound-processing endpoint without requiring YARMI semantics to know where that endpoint is hosted.
+## D9 — Native platform horizon
 
-A VST3 synthesiser may be hosted by YARMI, Ableton Live, Reaper, Bitwig, another plugin host, or another process. The station should interact through a suitable adapter/control boundary rather than treating host identity as musical semantics.
+Required native targets remain iPhone/iPad, Android, macOS, Windows and Linux.
 
-JUCE VST3 hosting remains a useful optional desktop integration path, not the definition of plugin integration.
+## D10 — JUCE is a portable host, not station ontology
 
-### D11 — DAWs and plug-ins remain optional participants
+JUCE is the first portable process/audio/MIDI host and may supply application lifecycle on several targets. It is not required to own every station's sensing/rendering UI.
 
-A DAW may join timing through Link, receive/send MIDI/audio/control, or host/route plugins. YARMI semantics must not depend on Ableton Live, Logic, Bitwig, Reaper or any other DAW.
+Native ARKit/ARCore, openFrameworks, headset runtimes or other frameworks may coexist inside one logical station.
 
-### D12 — Manipulator is the control-source concept
+## D11 — libpd is the first local DSP backend
 
-A **Manipulator** is a performer-controlled source that can be bound to a manipulable musical element or parameter.
+Embedded libpd is the first local sound engine behind a replaceable output boundary. Pd does not own station/ensemble semantics, physical interaction, networking or authority.
 
-A manipulator does not imply rotation. Possible observable channels include translation, in-plane rotation, 3D orientation, scale, distance, speed, contact, hand gesture, pressure, or another sensing/control value. A sensing adapter exposes only the channels it can estimate usefully.
+Native C++/JUCE DSP and external sound generators remain alternatives.
 
-An arbitrary physical object selected at runtime can become a manipulator without semantic object recognition. Fiducials, hands, virtual objects, touch, MIDI controllers and other sources can also be manipulators.
+## D12 — Sound endpoints are host-agnostic
 
-See `docs/MANIPULATORS.md`.
+A station must be able to control sound-producing/processing endpoints without caring where they are hosted.
 
-### D13 — Architecture is intentionally revisable
+A VST synthesiser/effect may live inside YARMI, Ableton, Reaper, Bitwig, another plugin host/process or elsewhere. Host identity is not musical semantics. JUCE VST3 hosting is an optional integration route, not the definition of plugin support.
 
-Separation at volatile boundaries is required; speculative abstraction is not. We keep enough decomposition to replace DSP, synchronisation, sensing/manifestation and integration layers, but we do not build a general-purpose distributed-music framework in advance of the instrument.
+Ableton Live and standalone Pd are not dependencies.
+
+## D13 — Ableton Link is the first shared timing substrate
+
+Link supplies shared beat/tempo timing. Link is not the YARMI protocol and not authority.
+
+Stations/tracks derive their own periods/phases from shared/absolute musical time. Do not bake a fixed four-beat Link quantum into YARMI semantics.
+
+## D14 — No authority subsystem in the first iteration
+
+First stations are peer-oriented. Do not implement leader election, grants, leases, consensus or hierarchy yet.
+
+The architecture must not preclude later leaderless, fixed-leader, dynamic, multiple, domain-specific, hierarchical/subleader or subensemble authority. If introduced, authority belongs to relations/policies over coordination domains, not a fixed station type.
+
+## D15 — Semantic networking is deferred; OSC is an adapter candidate
+
+No general YARMI state/control protocol is required while stations only share Link timing.
+
+When a musical interaction needs semantic exchange, define the smallest transport-independent semantic contract first. OSC may encode it; OSC is not YARMI itself.
+
+## D16 — `codex/playable-prototype-v0` is a technology spike, not a merge target
+
+Do **not** merge `codex/playable-prototype-v0` wholesale.
+
+Selectively reuse CMake/JUCE/libpd/Link/diagnostic/CI work after removing station-specific leakage. The 4×16 sequencer may later become a `GridSequencer` component inside a station; its lanes, pitches, cutoff and `EVOLVE` behaviour are not core semantics.
+
+See `PROTOTYPE-V0-AUDIT.md`.
+
+## D17 — Architecture remains revisable
+
+Separation at volatile boundaries is required; speculative abstraction is not. The first revised-original station should remain small enough to understand and play.
 
 ## Current first-iteration decomposition
 
 ```text
-augmented station
+YARMI station
   |
-  +-- performer interaction / manipulators
-  +-- performer view
-  +-- audience-visible view
-  +-- station-specific musical model
+  +-- station-local musical model/components
+  +-- Manipulators / performer interaction
+  +-- performer rendering
+  +-- audience rendering
   |
-  +-------------------+-------------------+
-  |                   |                   |
-  v                   v                   v
-shared time        output adapters     sensing/rendering
-(Ableton Link)     libpd / VST / ...   AR / CV / touch / ...
+  +--------------------+--------------------+--------------------+
+  |                    |                    |                    |
+  v                    v                    v                    v
+shared time         output endpoints      sensing             rendering
+Ableton Link       libpd / VST / ...     AR/CV/touch/...     AR/projection/...
 ```
-
-Control/state networking beyond Link is introduced only when a musical behaviour actually needs station-to-station semantic exchange.
 
 ## Explicitly open
 
-- exact internal model of the first revised-original YARMI station;
-- track geometry and track-period interaction rules;
-- synthesis/processing model beyond the first libpd backend;
-- rendering framework per station implementation;
-- exact performer/audience-view relationship for mobile AR;
-- fiducial-less arbitrary-object tracking implementation and supported manipulator channels;
-- control/state network protocol and transport, if/when needed;
-- OSC's eventual role;
-- station discovery beyond what the first playable ensemble requires;
+- exact synthesis/sample palette;
+- exact first effect types and multi-effect routing/order;
+- quantisation behaviour/UI;
+- curves/non-linear tracks after the first line segments;
+- exact performer/audience-view composition;
+- precise markerless tracking implementation after v0 experiments;
+- whether deeper arbitrary-object 6-DoF is musically needed;
+- station discovery and shared state beyond Link;
 - persistence/replication/conflict semantics;
-- whether authority is needed in actual musical use;
-- if authority is needed, its domains and policies;
-- whether native JUCE/C++ DSP replaces or complements libpd;
-- AU/AUv3/LV2/CLAP integration priorities;
-- whether YARMI itself ships as a plugin;
-- final public title/version naming.
+- whether authority becomes musically necessary;
+- alternate timing backends;
+- AU/AUv3/CLAP/LV2 priorities;
+- whether YARMI itself becomes a plugin;
+- final public version naming.
 
-## Large-schema design envelope — preserve, do not implement by default
+## Historical sources
 
-The longer-term architecture may eventually need to represent independently:
+The 2009 YARMI paper is a primary design source for the original goals of direct manipulation, sequenced organisation, immediate interaction and audience legibility.
 
-- heterogeneous station/device capabilities;
-- ensemble/subensemble membership;
-- timing backends other than Link;
-- multiple authority domains and topologies;
-- shared semantic state and replication;
-- discovery and capability negotiation;
-- ordering/idempotence/replay guarantees;
-- persistence and session recovery;
-- several simultaneous transports;
-- different AR/augmentation techniques;
-- object-, hand-, marker-, touch-, projection- and haptic interaction;
-- several DSP engines;
-- DAWs, plugin hosts and hardware instruments;
-- heterogeneous performer/audience renderings of the same station state.
+The 2011 paper *A New Iteration of YARMI* has been recovered into `krahd/research/academic-writing/my_papers/2011 - A New Iteration of YARMI/` with PDF and original Spanish Word source. Its existence/completeness must not be confused with current design authority.
 
-This list records design possibility. It is not a commitment to implement the corresponding abstractions before they are justified.
-
-## Historical-material rule
-
-When the old codebase is recovered, review observations under three labels only:
-
-- `historical-observation` — what the system actually did;
-- `candidate` — something worth independently reconsidering;
-- `rejected` — something deliberately not carried forward.
-
-No historical behaviour becomes current merely because it existed or because it was documented in a paper/codebase.
+If the historical codebase is recovered, classify observations only as `historical-observation`, `candidate`, or `rejected`; nothing becomes current by inertia.

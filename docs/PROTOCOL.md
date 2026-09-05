@@ -1,92 +1,58 @@
-# YARMI protocol — deferred design basis
+# YARMI protocol — deferred, transport-independent design basis
 
-Status: **not a v0 wire specification**.
-
-The first playable YARMI iteration uses Ableton Link for shared musical timing and does not require a general-purpose YARMI control/state network merely to satisfy architectural completeness.
+Status: no general YARMI control/state wire protocol is required for the first playable station.
 
 ## Current rule
 
-Do not design or implement a broad distributed protocol before a musical behaviour needs semantic station-to-station exchange.
+Do not design a broad distributed protocol before a musical behaviour requires semantic station-to-station exchange.
 
 When that need appears:
 
 1. identify the exact musical interaction;
-2. identify the smallest shared state/actions needed;
-3. define timing, ordering, identity and failure behaviour required by that interaction;
-4. implement the minimum transport-independent semantic contract;
-5. choose a transport/encoding appropriate to the measured requirement;
+2. identify the smallest shared identities/state/actions needed;
+3. define musical-time, ordering and failure behaviour;
+4. define a transport-independent semantic contract;
+5. choose an encoding/transport appropriate to the measured requirement;
 6. play it and revise.
 
-## Link is timing, not the YARMI protocol
+## Ableton Link
 
-Ableton Link is the complete v0 ensemble tempo/beat/phase synchronisation substrate. It does not define YARMI musical entities or station control.
+Link supplies shared tempo/beat timing for the first ensemble. It is **not** the YARMI semantic/control protocol and it is not an authority mechanism.
 
-A first ensemble may therefore consist of several independent YARMI stations that share Link timing but exchange no YARMI semantic messages at all.
+Stations derive their own track/phrase periods from shared/absolute musical time; a fixed Link quantum does not define YARMI metre or track length.
 
-That is a valid v0 architecture.
-
-## Future semantic protocol principle
-
-If/when station-to-station control or shared state is needed, YARMI should define a versioned semantic contract independently of a particular wire technology.
-
-Potential concepts include:
-
-- station identity;
-- entity/action identity;
-- musical-time annotations;
-- shared state snapshots or deltas;
-- ordering/idempotence requirements;
-- membership/discovery information;
-- capability information;
-- later, only if needed, authority relations.
-
-These are candidate requirements, not mandatory message families.
+Several independent stations sharing only Link timing are a valid first ensemble.
 
 ## OSC
 
-OSC remains a strong interoperability candidate because of its broad use in computer music.
+OSC is a strong interoperability candidate because it is widespread in computer music.
 
-Do not define YARMI itself as an OSC address tree. If OSC is adopted, it should encode the semantic messages required by the current musical interaction.
+YARMI itself must not be defined as an OSC address tree. If OSC is used, it encodes YARMI semantics required by the current interaction. Another transport must be able to carry the same semantic contract without redefining the musical concept.
 
-OSC is not automatically the first control transport; its use should be justified by the first real networked interaction.
+## Local/in-process paths
 
-## Local/in-process path
+The same station/component semantics may be exercised locally without networking. Local calls/IPC are useful for tests, components and multi-process stations.
 
-Local calls or IPC may implement the same musical actions without networking. This remains useful for tests, single-device components and simulated multi-station work.
+## Authority
 
-## Future transport questions
-
-Only answer these when measurements/use cases require them:
-
-- reliable versus unreliable delivery;
-- UDP/TCP/QUIC/WebSocket/other transport;
-- discovery mechanism;
-- NAT/remote performance requirements;
-- retransmission;
-- state replication;
-- persistence/session recovery;
-- conflict resolution;
-- capability negotiation.
-
-## Authority — deliberately absent from v0 protocol
-
-Do not implement authority grants, leases, leader elections, revocation, consensus or hierarchical control in the initial protocol.
-
-If musical use later shows that Link's egalitarian control model creates a real problem, authority can be introduced as a semantic extension. The architecture preserves the possibility of fixed, dynamic, multiple, hierarchical and domain-specific authority without pre-building it.
+Do not implement grants, leases, election, consensus or hierarchy in the first protocol. If authority becomes musically necessary, introduce it as a semantic extension while preserving possible leaderless, fixed, dynamic, multiple, hierarchical and domain-specific arrangements.
 
 ## DAW/plugin boundary
 
-VST3, AU/AUv3, LV2/CLAP and DAW APIs are integration surfaces, not YARMI network transports.
+VST3, AU/AUv3, CLAP/LV2 and DAW APIs are integration surfaces, not YARMI network transports.
 
-For the first desktop integration, JUCE may host VST3 instruments/effects locally. Ableton Live may participate through Link without becoming a YARMI dependency.
+A station may control a VST synthesiser/effect without knowing which host instantiated it. YARMI may host a plugin itself, or the endpoint may live in Ableton, Reaper, Bitwig, another host/process or hardware. Host identity is outside YARMI musical semantics.
 
-## Compatibility principle
+## Future questions — answer only when required
 
-A YARMI manifestation should remain recognisably the same musical system if:
+- discovery/ad-hoc membership;
+- reliable versus unreliable delivery;
+- scheduled future events;
+- snapshots/deltas;
+- ordering/idempotence/replay;
+- persistence/session recovery;
+- remote/NAT behaviour;
+- capability negotiation;
+- conflict semantics.
 
-- libpd is replaced by another audio backend;
-- one physical interface is replaced by another;
-- a future control transport is replaced;
-- a DAW/plugin integration is absent.
-
-This compatibility principle is more important than preserving any particular speculative protocol schema.
+The compatibility goal is that changing transport, DSP endpoint or sensing/rendering implementation does not require redefining the station's musical behaviour.

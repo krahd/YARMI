@@ -1,12 +1,10 @@
-# Minimal YARMI semantics — provisional v0
+# Minimal YARMI semantics — current first-iteration boundary
 
-This is an intentionally small working vocabulary for the first portable/playable YARMI iteration. It is **not a frozen ontology**. Musical use may change it.
+This document deliberately avoids defining a universal musical ontology. The first station has its own musical model; only distinctions that must survive across station/timing/integration boundaries belong here.
 
-The purpose of the semantic core is to keep physical manifestation, DSP implementation and timing infrastructure separable without prematurely designing a universal distributed-music model.
+## Ensemble
 
-## Current state model
-
-For the first implementation, it is sufficient to reason about an ensemble as:
+For the first implementation it is sufficient to reason about an ensemble as:
 
 ```text
 E = (S, X, τ)
@@ -14,145 +12,109 @@ E = (S, X, τ)
 
 where:
 
-- `S` is the set of stations known/required by the current manifestation;
-- `X` is musical/entity state used by that manifestation;
-- `τ` is shared musical time, supplied in v0 by Ableton Link.
+- `S` is the set of logical YARMI station identities participating in the current ensemble;
+- `X` is the collection of station-local states needed by the current implementation, without requiring one universal entity schema;
+- `τ` is shared musical time supplied initially by Ableton Link.
 
-`S` and `X` should remain deliberately weakly specified until playing the instrument reveals which distinctions need to be durable.
-
-There is **no authority-policy component in v0**.
+There is no authority-policy component in the first implementation.
 
 ## Station
 
-At the semantic level, a station has stable identity and whatever local musical state the current manifestation requires.
+Station is a first-class YARMI concept.
 
 ```text
-Station = StationId
+Station = StationId + station-local musical/interaction state
 ```
 
-Station identity must not intrinsically encode:
+A station is an independently playable **augmented** musical locus. Its logical identity must not encode:
 
-- device type;
-- performer;
-- location;
-- screen/table/object;
+- one device/process;
+- one performer;
+- one sensing technology;
+- one rendering technology;
+- one audio backend or ownership of sound generation;
 - leader/follower role;
-- audio backend;
-- physicality;
-- spatial coordinates;
-- interaction modality.
+- tracks, grids or a specific component vocabulary.
 
-For the first Link-based iteration, stations are peers. YARMI does not add a separate authority model unless musical use demonstrates a need.
+A logical station may span several devices/processes.
 
-## Entity vocabulary
+Audience-visible rendering is constitutive of a complete YARMI station, although the rendering representation itself remains station-specific.
 
-An entity is something a manifestation needs to refer to durably:
+## Station-local musical state
 
-```text
-Entity = (EntityId, kind, state)
-```
+Do not introduce a universal `Entity`/`Action` framework merely for architectural neatness.
 
-`kind` and `state` are extensible and provisional. The core does not prescribe tracks, notes, samples, effects, spatial nodes, physical objects, clips, voices or graphics.
+The first revised-original station may define station-local concepts such as:
 
-A manifestation may use such concepts, but they must earn promotion into reusable YARMI semantics through repeated musical need rather than historical precedent.
+- Track;
+- track period;
+- sound/event component;
+- local effect;
+- immediate component/effect;
+- station/global control;
+- Manipulator;
+- Binding.
 
-## Actions
+Promote a concept into shared YARMI semantics only when several station types or a real network/integration boundary demonstrate the need.
 
-Semantic changes may be represented as actions:
+## Manipulator
 
-```text
-Action = (
-    ActionId,
-    actor: StationId,
-    operation,
-    target?,
-    payload?,
-    musicalTime?
-)
-```
+A Manipulator is a performer-controlled source bound to one or more manipulable station elements/parameters.
 
-A useful initial operation vocabulary is simply:
+The semantic relation is independent of sensing modality:
 
 ```text
-create
-update
-delete
+source -> observed channel -> binding -> parameter
 ```
 
-Do not add domain-specific operations until they clarify a real musical interaction.
+Rotation is only one channel. Runtime-selected arbitrary physical objects can become manipulators without semantic category recognition. The sensing implementation must expose only channels that are sufficiently observable/reliable.
 
-The important architectural property is that a manifestation can map physical interaction into actions/state without the core knowing whether the source was touch, AR, object tracking, MIDI, VR, haptics or another modality.
+See `MANIPULATORS.md`.
 
 ## Musical time
 
-In v0, shared musical time comes from **Ableton Link**.
+The first shared time source is Ableton Link.
 
-The semantic layer should consume musical timing in a form appropriate for scheduling without treating network packet arrival as musical time. Each station renders against its own local audio clock and maps Link timing to local scheduling.
+YARMI consumes shared/absolute beat/tempo information and each station derives its own periods/phases locally. A track may therefore have a period unrelated to a fixed four-beat Link quantum.
 
-The exact representation is an implementation detail until a real use case requires a richer semantic time object. Beat/phase/tempo information should not be generalised into a custom clock architecture prematurely.
+Network packet arrival and UI display-frame time are not musical time. Musical events must be scheduled against the audio/shared musical timeline.
 
-## Physical manifestations
+## Augmentation and views
 
-A manifestation conceptually maps:
+Sensing/rendering technology is not part of the musical semantics, but augmentation is part of what makes a station YARMI.
 
-```text
-input / sensing -> provisional musical action/state
-YARMI state/time -> sound / image / spatial augmentation / haptics / external control
-```
-
-Markers, arbitrary objects, hands, touch, projectors, AR goggles, VR, tactile interfaces and conventional screens can therefore produce different YARMI manifestations without entering the core ontology.
-
-Spatial metadata is optional. Non-spatial interfaces remain first-class.
-
-## Audio boundary
-
-The semantic layer does not know whether audio is produced by Pd, native C++ DSP, a hosted VST3 instrument, external MIDI hardware or something else.
-
-For v0:
-
-- JUCE owns the process and audio-device callback;
-- libpd is the first `AudioBackend`;
-- Pd patches receive musical information and render/process sound;
-- Pd does not own ensemble semantics.
-
-## Control/state networking
-
-The first playable iteration does not require a general YARMI network protocol merely to justify the architecture. Multiple stations may initially share only Link timing while remaining musically independent.
-
-When a concrete musical interaction requires station-to-station semantic exchange, define only the state/actions and network behaviour needed by that interaction.
-
-## Authority — deferred extension, not v0 semantics
-
-The architecture should not make future authority impossible, but v0 does not model it.
-
-If playing reveals a need for restricted or structured control, a later extension may introduce authority policies over specific domains. Candidate configurations include no leader, fixed leader, dynamic leader, multiple leaders, hierarchical/subleaders and subensemble-specific authority.
-
-Those possibilities are preserved in `ARCHITECTURE.md` and `DECISIONS.md` as a large-schema design envelope. They are not part of current minimal semantics.
-
-## Existing iOS/iPadOS AR proof
-
-`apps/ios-proof/` is a disposable existence proof, not the semantic specification. It currently uses manifestation-level concepts:
+A station may have:
 
 ```text
-track(start, end)
-sample(position-on-track, frequency)
-cursor(phase)
+station state
+   +--> performer rendering
+   +--> audience rendering
 ```
 
-The first two taps place track boundaries, later taps place sample entities, and a moving cursor triggers them. This is intentionally a tiny historical echo used to prove that a contemporary manifestation can exist; it does not establish tracks, samples or this interaction grammar as YARMI 2.0 semantics.
+The two renderings may be the same. The audience rendering must expose the consequential action/state/music relationship sufficiently for performance legibility.
 
-## v0 non-goals
+## Audio/output boundary
 
-Until playability demands otherwise, do not implement:
+Station musical state does not know whether sound is produced by:
 
-- authority/leader management;
-- custom distributed clocks;
-- consensus;
-- replicated-state machinery;
-- general persistence;
-- universal capability negotiation;
-- elaborate discovery;
-- a general spatial ontology;
-- historical YARMI zones/mappings/track rules.
+- embedded libpd;
+- native C++/JUCE DSP;
+- a VST/AU/other plugin hosted anywhere;
+- MIDI hardware;
+- another external process/system.
 
-Cross-platform support, Link timing, JUCE hosting and libpd audio are current implementation work; the items above are not.
+Adapters translate the station/component's musical/control output into the endpoint's interface. Plugin-host identity is not musical semantics.
+
+## Networking
+
+No general YARMI state protocol is required while stations only share Link time.
+
+When a concrete musical interaction requires semantic exchange, promote only the necessary shared identities/state/actions and specify their timing/failure behaviour. Keep that semantic contract independent of wire transport; OSC may encode it.
+
+## Authority
+
+Authority is deliberately absent from first-iteration semantics. If musical use later requires it, model it as a relation/policy over coordination domains rather than an intrinsic station type. The architecture must remain compatible with leaderless, fixed/dynamic/multiple/hierarchical/domain-specific/subensemble arrangements.
+
+## First station
+
+The canonical first station is specified by `FIRST-STATION.md`. Its tracks, effects and immediate components are station-local semantics, not claims that every future YARMI station must use those concepts.
