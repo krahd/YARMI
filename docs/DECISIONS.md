@@ -88,13 +88,15 @@ Embedded libpd is the first local sound engine behind a replaceable output bound
 
 Native C++/JUCE DSP and external sound generators remain alternatives.
 
-## D12 — Sound endpoints are host-agnostic
+## D12 — Sound endpoints and DAWs are host-agnostic integrations
 
 A station must be able to control sound-producing/processing endpoints without caring where they are hosted.
 
 A VST synthesiser/effect may live inside YARMI, Ableton, Reaper, Bitwig, another plugin host/process or elsewhere. Host identity is not musical semantics. JUCE VST3 hosting is an optional integration route, not the definition of plugin support.
 
-Ableton Live and standalone Pd are not dependencies.
+A DAW may also participate as an optional integration environment/component: it may share time through Link, exchange MIDI/audio/control, host plug-ins, expose automatable parameters, or mediate external instruments. DAW-specific concepts do not enter YARMI station semantics merely because a station uses them.
+
+Ableton Live, any other commercial DAW, and standalone Pd are not dependencies. YARMI must remain usable without them.
 
 ## D13 — Ableton Link is the first shared timing substrate
 
@@ -112,7 +114,7 @@ The architecture must not preclude later leaderless, fixed-leader, dynamic, mult
 
 No general YARMI state/control protocol is required while stations only share Link timing.
 
-When a musical interaction needs semantic exchange, define the smallest transport-independent semantic contract first. OSC may encode it; OSC is not YARMI itself.
+When a musical interaction needs semantic exchange, define the smallest **versioned, transport-independent semantic contract** first. OSC may encode it; OSC is not YARMI itself.
 
 ## D16 — `codex/playable-prototype-v0` is a technology spike, not a merge target
 
