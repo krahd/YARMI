@@ -1,10 +1,8 @@
-# YARMI 2 iOS existence proof
+# YARMI 2 iOS AR proof
 
-This is intentionally a **tiny, disposable first manifestation**, not the portable YARMI runtime.
+This is intentionally a **tiny, disposable AR technology/interaction proof**, not the canonical YARMI 2 station and not the portable runtime.
 
-Its purpose is to make one claim concrete as early as possible:
-
-> YARMI 2 exists when a user can place a musical structure in physical space, see its temporal behaviour explicitly, and hear interaction change the result.
+Its current purpose is narrower than the first-station milestone: confirm on real Apple hardware that a musical structure can be placed in physical space, rendered with explicit temporal behaviour, and made audible.
 
 ## Behaviour
 
@@ -14,22 +12,30 @@ Its purpose is to make one claim concrete as early as possible:
 4. A line and moving time cursor appear.
 5. Subsequent taps are projected onto the track and create note entities.
 6. The cursor loops every four seconds and triggers each note as it crosses it.
-7. The note position controls its temporary proof-of-concept pitch mapping.
+7. The note position controls a temporary proof-of-concept pitch mapping.
 
-This deliberately recreates only the smallest recognisable interaction documented in historical YARMI: track boundaries, samples placed along a track, an explicit time cursor, and audible triggering. It does **not** inherit the old zones, fiducial ontology, leader model, client/server architecture, fixed track lengths, mappings, Pd patch structure, or audio semantics.
+This recreates only one small historical echo: track boundaries, events on a track, an explicit time cursor and audible triggering.
+
+It does **not** implement the current YARMI 2 playability contract. In particular it does not yet provide:
+
+- the revised-original first station;
+- immediate interaction/effects;
+- track/global effects and controls;
+- Manipulator assignment;
+- markerless arbitrary-object tracking;
+- the constitutive audience-view requirement beyond ordinary screen mirroring;
+- audio/shared-time scheduling suitable for musical performance;
+- multi-station timing/network behaviour.
 
 ## Implementation
 
-- SwiftUI application shell
-- RealityKit / ARKit manifestation
-- `AVAudioEngine` temporary sine-tone backend
-- local `ProofEnsemble` reducer mirroring the minimal semantics in `../../docs/SEMANTICS.md`
-- no networking
-- no OSC
-- no Ableton Link
-- no libpd/JUCE dependency yet
+- SwiftUI application shell;
+- RealityKit / ARKit rendering;
+- `AVAudioEngine` temporary sine-tone backend;
+- local proof-only state;
+- no networking, OSC, Link, libpd or JUCE dependency.
 
-The proof uses Apple-native AR code because the immediate objective is the shortest route to a real mobile manifestation. It does not determine the eventual cross-platform AR layer.
+The cursor/note crossing logic currently uses display-frame timing. That is acceptable for this disposable proof but must **not** become the scheduler for the canonical station.
 
 ## Build
 
@@ -39,7 +45,7 @@ Open:
 apps/ios-proof/YARMI2Proof.xcodeproj
 ```
 
-Select an iPhone or iPad device and run the `YARMI2Proof` scheme. A real device is required for meaningful AR behaviour.
+Select an iPhone or iPad and run `YARMI2Proof`. A real device is required for meaningful AR validation.
 
 For a compile-only simulator build:
 
@@ -53,8 +59,10 @@ xcodebuild \
   build
 ```
 
-The repository workflow `.github/workflows/ios-proof.yml` runs this compile-only build on changes to the proof.
+The repository workflow `.github/workflows/ios-proof.yml` runs this compile-only check.
 
 ## Exit criterion
 
-This prototype has done its job once it runs on a real iPhone/iPad and demonstrates the complete seven-step behaviour above. After that, further work should move back to the portable semantic/runtime architecture rather than growing this Swift proof opportunistically.
+This proof is complete once the seven-step behaviour above has been validated on a physical iPhone/iPad and any proof-blocking defects have been recorded/fixed.
+
+Passing this gate does **not** by itself establish the canonical YARMI 2 station. The first station milestone is defined in `../../docs/FIRST-STATION.md`.
