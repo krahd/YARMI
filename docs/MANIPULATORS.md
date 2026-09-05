@@ -35,6 +35,44 @@ The intended fiducial-less interaction is:
 
 Object recognition by semantic category is not required. The selected instance is sufficient identity while tracking remains valid.
 
+`Arbitrary object` does not mean that every possible object must yield every possible control channel. Physical manipulators are subject to **observability**: the selected object must expose enough stable visual/depth information for the intended gesture to be measured. This is an acceptable instrument constraint. The performer may deliberately choose objects whose appearance and geometry make the desired manipulation legible to the sensing system and to the audience.
+
+The relevant criterion is **observable asymmetry**, not geometric asymmetry alone. A rotationally symmetric object with an asymmetric printed label or texture may provide excellent rotation information; a geometrically irregular but transparent, reflective, textureless, or repeatedly self-similar object may not. Perfectly rotationally symmetric and visually uniform objects are therefore unsuitable when rotation is an intended control channel, and YARMI does not need to pretend otherwise.
+
+## Manipulator suitability
+
+Assignment should include a lightweight suitability check rather than accepting every selected object silently.
+
+For the first implementation this can assess:
+
+- number and spatial distribution of trackable visual features inside the selected region;
+- stability of those features over a short observation window;
+- whether in-plane orientation is distinguishable rather than rotationally ambiguous;
+- segmentation/mask stability where segmentation is used;
+- depth coverage when a depth-derived channel is requested;
+- expected tracking confidence for the channel being bound.
+
+The UI should distinguish:
+
+```text
+object acquired
+    + translation reliable
+    + scale reliable
+    + rotation reliable
+```
+
+from, for example:
+
+```text
+object acquired
+    + translation reliable
+    - rotation ambiguous
+```
+
+The second object remains a valid manipulator for translation-based bindings. It simply must not expose rotation as though it were trustworthy.
+
+A short optional calibration gesture can improve this decision: after acquisition, the performer moves or rotates the object briefly and YARMI observes which channels can be recovered stably. This calibration is a practical candidate, not a requirement for every manipulator.
+
 ## Current technical strategy
 
 No single current mobile technique provides robust full 6-DoF tracking of every arbitrary object under every viewing condition. YARMI therefore uses a progressive strategy rather than making full pose a prerequisite.
@@ -66,6 +104,7 @@ The first fiducial-less manipulator should deliberately be smaller than the comp
 - visual features inside the selected region are tracked frame-to-frame;
 - a 2D similarity/affine estimate yields translation, scale, and in-plane rotation when observable;
 - depth, where available, supplies world-space position;
+- assignment reports which channels are actually reliable for the selected object;
 - tracking confidence is visible;
 - loss of tracking asks for re-selection rather than silently controlling the wrong object;
 - any supported channel can be bound to a manipulable parameter.
@@ -74,9 +113,9 @@ This is sufficient to recover the important interaction grammar of the historica
 
 ## Failure cases are part of the interface
 
-An arbitrary object may not expose every motion perceptually. Examples include rotationally symmetric objects, textureless surfaces, reflective or transparent objects, severe occlusion, motion blur, and several nearly identical objects in one scene.
+An arbitrary object may not expose every motion perceptually. Examples include rotationally symmetric and visually uniform objects, textureless surfaces, reflective or transparent objects, severe occlusion, motion blur, and several nearly identical objects in one scene.
 
-A manipulator must therefore carry tracking confidence and a set of currently usable channels. YARMI should prefer explicit loss/degradation over an apparently continuous but incorrect control signal.
+These are not all implementation defects. Some motions are genuinely unobservable from the available sensor view. A manipulator must therefore carry tracking confidence and a set of currently usable channels. YARMI should prefer explicit loss/degradation over an apparently continuous but incorrect control signal.
 
 ## Relationship to historical YARMI
 
