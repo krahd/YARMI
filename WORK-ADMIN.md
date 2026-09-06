@@ -68,6 +68,10 @@ The markerless direction lets a performer select a suitable arbitrary visible ob
 13. revisit the grid only as an optional station component;
 14. expand cross-platform validation across iOS/iPadOS, Android, macOS, Windows, Linux.
 
+## Additional station target
+
+User instruction, 6 September 2026: include an **OLPC Ceibalita version of YARMI stations**. Recorded in `docs/DECISIONS.md` D9, architecture and development plan. Hardware/OS selection and compatibility are pending; this does not change the canonical first station or immediate implementation order.
+
 ## Historical sources
 
 - 2009: *YARMI: An Augmented Reality Musical Instrument* — primary original-design source.
