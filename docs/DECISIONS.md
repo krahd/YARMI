@@ -76,6 +76,8 @@ See `MANIPULATORS.md`.
 
 Required native targets remain iPhone/iPad, Android, macOS, Windows and Linux.
 
+Tomas Laurenzo's instruction of 6 September 2026 adds an **OLPC Ceibalita version of YARMI stations** as an explicit development requirement. Generic Linux coverage alone does not establish support for this target. The exact Ceibalita model(s), operating system and workable implementation profile remain to be established on actual hardware. Augmentation, local playability and audience intelligibility remain constitutive. This requirement does not change the first canonical station or its current implementation order.
+
 ## D10 — JUCE is a portable host, not station ontology
 
 JUCE is the first portable process/audio/MIDI host and may supply application lifecycle on several targets. It is not required to own every station's sensing/rendering UI.
