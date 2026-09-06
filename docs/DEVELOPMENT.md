@@ -144,6 +144,8 @@ The Codex 4×16 sequencer may become a `GridSequencer` station component. If rev
 
 The target remains iPhone/iPad, Android, macOS, Windows and Linux. Establish compile/smoke-test coverage early enough to expose platform assumptions, but do not block the first playable AR station on simultaneous full-platform feature parity.
 
+The platform plan also includes an explicit **OLPC Ceibalita station version** (D9; user instruction, 6 September 2026). Identify the available model(s) and OS, establish build/runtime compatibility and measure a minimal playable station on actual hardware before claiming support. Determine the sensing, rendering, audio and timing profile from those results while retaining augmentation and audience intelligibility. This is a recorded development requirement; the current first-station implementation order remains in force.
+
 ## Decision gates
 
 ### Link
