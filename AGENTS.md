@@ -48,6 +48,7 @@ Do not leave contradictions behind. A material decision change must update every
 - No authority subsystem, broad replication framework or universal control protocol is implemented until musical use requires it; future architecture must not preclude leaderless, fixed/dynamic/multiple/hierarchical/domain-specific leadership.
 - If semantic networking becomes necessary, define a minimal **versioned, transport-independent** YARMI semantic contract; OSC is an adapter candidate, not YARMI itself.
 - Required native platform horizon: iPhone/iPad, Android, macOS, Windows, Linux.
+- An **OLPC Ceibalita version of YARMI stations** is an explicit development requirement (D9); exact hardware/OS profile and compatibility remain unverified. Preserve augmentation, local playability and audience intelligibility.
 - Historical YARMI code and student implementation decisions are evidence only. Nothing is inherited automatically.
 
 ## Governing method
