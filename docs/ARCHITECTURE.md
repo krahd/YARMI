@@ -132,6 +132,10 @@ JUCE is the first portable process host because the target set includes iPhone/i
 
 It is not the required rendering/sensing host for every station. openFrameworks remains a legitimate graphics/CV layer; ARKit, ARCore, headset runtimes or other engines may be used directly where they provide the best manifestation.
 
+## OLPC Ceibalita station target
+
+An OLPC Ceibalita version of YARMI stations is required (see `DECISIONS.md`, D9). Keep sensing, rendering and audio boundaries replaceable so a hardware-appropriate implementation can be established without redefining the station. Exact models, operating systems and supported capabilities await hardware assessment; compatibility of the current JUCE/libpd/Link choices with that target is not yet verified. The station must retain augmentation, local playability and audience intelligibility.
+
 ## Control/state protocol
 
 There is deliberately no requirement to finalise a general distributed YARMI protocol before the first playable Link-synchronised stations exist.
